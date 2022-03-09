@@ -1,4 +1,6 @@
 package com.raywenderlich.currencyapp.ui
 
-class MainViewModel {
+import androidx.lifecycle.ViewModel
+
+class MainViewModel : ViewModel() {
 }
