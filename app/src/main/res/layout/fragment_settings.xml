@@ -19,7 +19,7 @@
             android:layout_width="56dp"
             android:layout_height="40dp"
             android:background="@color/teal_700"
-            android:src="@drawable/ic_back"
+            android:src="@drawable/ic_back_selector"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             android:paddingStart="8dp"
@@ -46,7 +46,7 @@
             android:background="@color/teal_700"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:src="@drawable/ic_apply" />
+            android:src="@drawable/ic_apply_selector" />
 
         <TextView
             android:id="@+id/placeHolder"

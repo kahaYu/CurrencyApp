@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animated-selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/notPressed"
+        android:drawable="@drawable/ic_back_1_frame"
+        android:state_pressed="false" />
+
+    <item
+        android:id="@+id/pressed"
+        android:drawable="@drawable/ic_back_3_frame" />
+
+    <transition
+        android:fromId="@+id/notPressed"
+        android:toId="@+id/pressed">
+        <animation-list>
+            <item android:drawable="@drawable/ic_back_1_frame" android:duration="30"/>
+            <item android:drawable="@drawable/ic_back_2_frame" android:duration="30"/>
+            <item android:drawable="@drawable/ic_back_3_frame" android:duration="30"/>
+        </animation-list>
+
+    </transition>
+
+    <transition
+        android:fromId="@+id/pressed"
+        android:toId="@+id/notPressed">
+        <animation-list>
+            <item android:drawable="@drawable/ic_back_3_frame" android:duration="30"/>
+            <item android:drawable="@drawable/ic_back_2_frame" android:duration="30"/>
+            <item android:drawable="@drawable/ic_back_1_frame" android:duration="30"/>
+            <item android:drawable="@drawable/ic_back_0_frame" android:duration="30"/>
+            <item android:drawable="@drawable/ic_back_1_frame" android:duration="30"/>
+        </animation-list>
+
+    </transition>
+
+</animated-selector>

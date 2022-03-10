@@ -14,77 +14,77 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <TextView
+            android:id="@+id/tvHeader"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:background="@color/teal_700"
+            android:gravity="center"
+            android:text="@string/cursy_valiut"
+            android:textColor="@color/white"
+            android:textSize="@dimen/header"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toStartOf="@id/btSettings"
+            app:layout_constraintStart_toEndOf="@id/btBack"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <ImageButton
             android:id="@+id/btBack"
             android:layout_width="56dp"
             android:layout_height="40dp"
             android:background="@color/teal_700"
-            android:src="@drawable/ic_back"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            android:onClick="@{() -> fragment.navigateBack()}"
             android:paddingStart="8dp"
-            android:onClick="@{() -> fragment.navigateBack()}"/>
-
-        <TextView
-            android:id="@+id/tvHeader"
-            android:layout_width="0dp"
-            android:layout_height="40dp"
-            android:gravity="center"
-            android:text="@string/cursy_valiut"
-            android:textSize="@dimen/header"
-            android:textStyle="bold"
-            android:textColor="@color/white"
-            app:layout_constraintEnd_toStartOf="@+id/btSettings"
-            app:layout_constraintStart_toEndOf="@+id/btBack"
-            app:layout_constraintTop_toTopOf="parent"
-            android:background="@color/teal_700" />
+            android:src="@drawable/ic_back_selector"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageButton
             android:id="@+id/btSettings"
             android:layout_width="56dp"
             android:layout_height="40dp"
             android:background="@color/teal_700"
+            android:onClick="@{() -> fragment.navigateToSettingsFragment()}"
+            android:src="@drawable/ic_settings_selector"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:src="@drawable/ic_settings"
-            android:onClick="@{() -> fragment.navigateToSettingsFragment()}"/>
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/placeHolder"
             android:layout_width="0dp"
             android:layout_height="32dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/tvDateWord"
-            app:layout_constraintTop_toBottomOf="@+id/tvHeader"
+            android:background="@color/teal_700_transparent"
             android:gravity="center"
-            android:background="@color/teal_700_transparent" />
+            app:layout_constraintEnd_toStartOf="@+id/tvDateWord"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvHeader" />
 
         <TextView
             android:id="@+id/tvDateWord"
             android:layout_width="80dp"
             android:layout_height="32dp"
-            app:layout_constraintEnd_toStartOf="@+id/tvDateToday"
-            app:layout_constraintTop_toBottomOf="@+id/tvHeader"
-            android:text="@string/data"
+            android:background="@color/teal_700_transparent"
             android:gravity="center"
-            android:background="@color/teal_700_transparent" />
+            android:text="@string/data"
+            android:textColor="@color/black"
+            app:layout_constraintEnd_toStartOf="@+id/tvDateToday"
+            app:layout_constraintTop_toBottomOf="@+id/tvHeader" />
 
         <TextView
             android:id="@+id/tvDateToday"
             android:layout_width="80dp"
             android:layout_height="32dp"
+            android:background="@color/teal_700_transparent"
             app:layout_constraintEnd_toStartOf="@+id/tvDateTomorrow"
-            app:layout_constraintTop_toBottomOf="@+id/tvHeader"
-            android:background="@color/teal_700_transparent" />
+            app:layout_constraintTop_toBottomOf="@+id/tvHeader" />
 
         <TextView
             android:id="@+id/tvDateTomorrow"
             android:layout_width="80dp"
             android:layout_height="32dp"
+            android:background="@color/teal_700_transparent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvHeader"
-            android:background="@color/teal_700_transparent" />
-
+            app:layout_constraintTop_toBottomOf="@+id/tvHeader" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"

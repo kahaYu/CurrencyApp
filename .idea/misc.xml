@@ -4,10 +4,26 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/ASProjects/CurrencyApp/app/src/main/res/drawable/bt_apply.xml" value="0.21" />
+        <entry key="..\:/ASProjects/CurrencyApp/app/src/main/res/drawable/button_background.xml" value="0.186" />
+        <entry key="..\:/ASProjects/CurrencyApp/app/src/main/res/drawable/ic_apply.xml" value="0.123" />
+        <entry key="..\:/ASProjects/CurrencyApp/app/src/main/res/drawable/ic_apply_0_frame.xml" value="0.123" />
+        <entry key="..\:/ASProjects/CurrencyApp/app/src/main/res/drawable/ic_apply_1_frame.xml" value="0.123" />
+        <entry key="..\:/ASProjects/CurrencyApp/app/src/main/res/drawable/ic_apply_2_frame.xml" value="0.123" />
+        <entry key="..\:/ASProjects/CurrencyApp/app/src/main/res/drawable/ic_apply_3_frame.xml" value="0.123" />
+        <entry key="..\:/ASProjects/CurrencyApp/app/src/main/res/drawable/ic_back.xml" value="0.1305" />
+        <entry key="..\:/ASProjects/CurrencyApp/app/src/main/res/drawable/ic_back_0_frame.xml" value="0.1305" />
+        <entry key="..\:/ASProjects/CurrencyApp/app/src/main/res/drawable/ic_back_2_frame.xml" value="0.1305" />
+        <entry key="..\:/ASProjects/CurrencyApp/app/src/main/res/drawable/ic_back_pressed.xml" value="0.186" />
         <entry key="..\:/ASProjects/CurrencyApp/app/src/main/res/drawable/ic_burger.xml" value="0.21" />
+        <entry key="..\:/ASProjects/CurrencyApp/app/src/main/res/drawable/ic_settings.xml" value="0.186" />
+        <entry key="..\:/ASProjects/CurrencyApp/app/src/main/res/drawable/ic_settings_0_frame.xml" value="0.1305" />
+        <entry key="..\:/ASProjects/CurrencyApp/app/src/main/res/drawable/ic_settings_2_frame.xml" value="0.1305" />
+        <entry key="..\:/ASProjects/CurrencyApp/app/src/main/res/drawable/ic_settings_3_frame.xml" value="0.1305" />
+        <entry key="..\:/ASProjects/CurrencyApp/app/src/main/res/drawable/ic_settings_pressed.xml" value="0.186" />
+        <entry key="..\:/ASProjects/CurrencyApp/app/src/main/res/drawable/toggle_notpressed_pressed.xml" value="0.186" />
         <entry key="..\:/ASProjects/CurrencyApp/app/src/main/res/layout/activity_main.xml" value="0.35104166666666664" />
         <entry key="..\:/ASProjects/CurrencyApp/app/src/main/res/layout/currency_item_view.xml" value="0.35104166666666664" />
-        <entry key="..\:/ASProjects/CurrencyApp/app/src/main/res/layout/fragment_currency.xml" value="0.35104166666666664" />
+        <entry key="..\:/ASProjects/CurrencyApp/app/src/main/res/layout/fragment_currency.xml" value="0.17769671704012507" />
         <entry key="..\:/ASProjects/CurrencyApp/app/src/main/res/layout/fragment_settings.xml" value="0.35104166666666664" />
         <entry key="..\:/ASProjects/CurrencyApp/app/src/main/res/layout/settings_item_view.xml" value="0.35104166666666664" />
       </map>
