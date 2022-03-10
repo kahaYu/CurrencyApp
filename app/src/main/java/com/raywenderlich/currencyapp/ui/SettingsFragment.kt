@@ -10,11 +10,13 @@ import com.raywenderlich.currencyapp.R
 import com.raywenderlich.currencyapp.databinding.FragmentCurrencyBinding
 import com.raywenderlich.currencyapp.databinding.FragmentSettingsBinding
 import com.raywenderlich.currencyapp.utils.AutoClearedValue
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class SettingsFragment: Fragment() {
 
     private var binding by AutoClearedValue<FragmentSettingsBinding>(this)
@@ -43,7 +45,7 @@ class SettingsFragment: Fragment() {
     }
 
     fun navigateBack () {
-        jobNavigateBack = MainScope().launch {
+        jobNavigateBack = MainScope().launch { // Some delay to let animation of button play
             delay(210L)
             findNavController().navigateUp()
         }

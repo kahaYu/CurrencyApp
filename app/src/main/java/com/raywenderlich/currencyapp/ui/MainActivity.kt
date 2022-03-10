@@ -8,7 +8,9 @@ import androidx.navigation.findNavController
 import com.raywenderlich.currencyapp.R
 import com.raywenderlich.currencyapp.databinding.ActivityMainBinding
 import com.raywenderlich.currencyapp.utils.hideSystemUI
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private val vm: MainViewModel by viewModels()

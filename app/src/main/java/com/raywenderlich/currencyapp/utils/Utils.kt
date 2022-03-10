@@ -8,6 +8,8 @@ import android.view.WindowInsetsController
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
+import java.text.SimpleDateFormat
+import java.util.*
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
@@ -71,4 +73,15 @@ fun Activity.hideSystemUI() {
         // make navbar translucent - do this already in hideSystemUI() so that the bar
         // is translucent if user swipes it up
     }
+}
+
+const val BASE_URL = "https://www.nbrb.by"
+
+fun Date.toString(format: String, locale: Locale = Locale.getDefault()): String {
+    val formatter = SimpleDateFormat(format, locale)
+    return formatter.format(this)
+}
+
+fun getCurrentDateTime(): Date {
+    return Calendar.getInstance().time
 }
