@@ -36,10 +36,9 @@ class MainViewModel @Inject constructor(
 
     private suspend fun safeCurrenciesCall() {
         currencies.postValue(Resource.Loading())
-        val currentDate = getCurrentDateTime().toString("dd.MM.yyyy")
         try {
             if (hasInternetConnection()) {
-                val response = RetrofitInstance.api.getCurrencies(date = currentDate)
+                val response = RetrofitInstance.api.getCurrencies()
                 when {
                     response.isSuccessful ->
                         currencies.postValue(Resource.Success(response.body()!!))
