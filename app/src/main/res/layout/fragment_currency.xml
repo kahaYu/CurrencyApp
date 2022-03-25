@@ -35,7 +35,8 @@
             android:textStyle="bold"
             app:layout_constraintEnd_toStartOf="@id/btSettings"
             app:layout_constraintStart_toEndOf="@id/btBack"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/tvHeaderSmall"/>
 
         <ImageButton
             android:id="@+id/btBack"

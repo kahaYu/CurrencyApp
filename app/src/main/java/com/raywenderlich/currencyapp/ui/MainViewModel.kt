@@ -1,18 +1,14 @@
 package com.raywenderlich.currencyapp.ui
 
-import android.app.Application
-import android.content.Context
 import android.net.ConnectivityManager
 import android.net.ConnectivityManager.*
 import android.net.NetworkCapabilities.*
 import android.os.Build
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.raywenderlich.currencyapp.model.CurrenciesResponse
-import com.raywenderlich.currencyapp.di.CurrencyApplication
 import com.raywenderlich.currencyapp.api.RetrofitInstance
+import com.raywenderlich.currencyapp.model.NationalRateListResponse
 import com.raywenderlich.currencyapp.utils.Resource
 import com.raywenderlich.currencyapp.utils.getCurrentDateTime
 import com.raywenderlich.currencyapp.utils.toString
@@ -26,7 +22,7 @@ class MainViewModel @Inject constructor(
     val connectivityManager: ConnectivityManager // Need application to check internet state
 ) : ViewModel() {
 
-    val currencies = MutableLiveData<Resource<CurrenciesResponse>>()
+    val currencies = MutableLiveData<Resource<NationalRateListResponse>>()
     var toastShowTime = 0L
 
     init {
@@ -40,10 +36,10 @@ class MainViewModel @Inject constructor(
 
     private suspend fun safeCurrenciesCall() {
         currencies.postValue(Resource.Loading())
-        val currentDate = getCurrentDateTime().toString("yyyy-MM-dd")
+        val currentDate = getCurrentDateTime().toString("dd.MM.yyyy")
         try {
             if (hasInternetConnection()) {
-                val response = RetrofitInstance.api.getCurrencies(0, currentDate)
+                val response = RetrofitInstance.api.getCurrencies(date = currentDate)
                 when {
                     response.isSuccessful ->
                         currencies.postValue(Resource.Success(response.body()!!))

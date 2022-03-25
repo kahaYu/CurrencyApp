@@ -75,7 +75,7 @@ fun Activity.hideSystemUI() {
     }
 }
 
-const val BASE_URL = "https://www.nbrb.by"
+const val BASE_URL = "https://developerhub.alfabank.by:8273/partner/1.0.1/"
 
 fun Date.toString(format: String, locale: Locale = Locale.getDefault()): String {
     val formatter = SimpleDateFormat(format, locale)

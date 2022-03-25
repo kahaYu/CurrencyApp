@@ -5,13 +5,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.raywenderlich.currencyapp.R
-import com.raywenderlich.currencyapp.databinding.ActivityMainBinding.inflate
 import com.raywenderlich.currencyapp.databinding.CurrencyItemViewBinding
-import com.raywenderlich.currencyapp.model.CurrenciesResponse
+import com.raywenderlich.currencyapp.model.NationalRateListResponse
 
 class CurrencyAdapter : RecyclerView.Adapter<CurrencyAdapter.CurrencyViewHolder>() {
 
-    var list: CurrenciesResponse? = null
+    var list: NationalRateListResponse? = null
 
     class CurrencyViewHolder(itemView: View, val binding: CurrencyItemViewBinding) :
         RecyclerView.ViewHolder(itemView)
@@ -26,14 +25,15 @@ class CurrencyAdapter : RecyclerView.Adapter<CurrencyAdapter.CurrencyViewHolder>
 
     override fun onBindViewHolder(holder: CurrencyViewHolder, position: Int) {
         holder.binding.apply {
-            tvCurrencyEng.text = list?.get(position)?.Cur_Abbreviation
-            tvCurrencyRus.text = list?.get(position)?.Cur_Name
-            tvCurrencyToday.text = list?.get(position)?.Cur_OfficialRate.toString()
+            tvCurrencyEng.text = list?.rates?.get(position)?.iso
+            tvCurrencyRus.text = list?.rates?.get(position)?.name
+            tvCurrencyToday.text = list?.rates?.get(position)?.rate.toString()
+            tvQuantity.text = list?.rates?.get(position)?.quantity.toString()
             tvCurrencyTomorrow.text = "123"
         }
     }
 
     override fun getItemCount(): Int {
-        return list?.size ?: 0
+        return list?.rates?.size ?: 0
     }
 }

@@ -104,7 +104,7 @@ class CurrencyFragment : Fragment() {
 
     private fun showSafeToast(view: View, text: String) { // Prevent appearance of multiply toasts at once
         if (Calendar.getInstance().timeInMillis >= vm.toastShowTime + 4000L) {
-            val snackbar = Snackbar.make(view, "Error: $text", Snackbar.LENGTH_LONG)
+            val snackbar = Snackbar.make(view, "Ошибка: $text", Snackbar.LENGTH_LONG)
             //snackbar.view.background = resources.getDrawable(R.drawable.snackbar_background)
             snackbar.show()
             vm.toastShowTime = Calendar.getInstance().timeInMillis

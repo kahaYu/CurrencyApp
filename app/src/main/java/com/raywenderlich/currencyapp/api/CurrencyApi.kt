@@ -1,17 +1,17 @@
 package com.raywenderlich.currencyapp.api
 
-import com.raywenderlich.currencyapp.model.CurrenciesResponse
+import com.raywenderlich.currencyapp.model.NationalRateListResponse
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
 
 interface CurrencyApi {
 
-    @GET("api/exrates/rates")
+    @GET("public/nationalRates")
     suspend fun getCurrencies(
-        @Query("periodicity")
-        periodicity: Int = 0,
-        @Query("ondate**")
-        onDate: String
-    ) : Response<CurrenciesResponse>
+        @Query("currencyCode")
+        currencyCode: Array<Int> = arrayOf(),
+        @Query("date")
+        date: String
+    ) : Response<NationalRateListResponse>
 }

@@ -2,6 +2,7 @@ package com.raywenderlich.currencyapp.ui
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.LayoutInflater
 import androidx.activity.viewModels
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.navigation.findNavController
@@ -24,6 +25,5 @@ class MainActivity : AppCompatActivity() {
         supportActionBar?.hide()
         WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars =
             false
-
     }
 }
