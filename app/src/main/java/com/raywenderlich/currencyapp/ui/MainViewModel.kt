@@ -8,12 +8,16 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.raywenderlich.currencyapp.api.RetrofitInstance
+import com.raywenderlich.currencyapp.model.CombinedResponse
 import com.raywenderlich.currencyapp.model.NationalRateListResponse
+import com.raywenderlich.currencyapp.model.Rate
+import com.raywenderlich.currencyapp.utils.Day
 import com.raywenderlich.currencyapp.utils.Resource
-import com.raywenderlich.currencyapp.utils.getCurrentDateTime
+import com.raywenderlich.currencyapp.utils.getDateTime
 import com.raywenderlich.currencyapp.utils.toString
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import retrofit2.Response
 import java.io.IOException
 import javax.inject.Inject
 
@@ -22,11 +26,15 @@ class MainViewModel @Inject constructor(
     val connectivityManager: ConnectivityManager // Need application to check internet state
 ) : ViewModel() {
 
-    val currencies = MutableLiveData<Resource<NationalRateListResponse>>()
+    val currencies = MutableLiveData<Resource<CombinedResponse>>()
     var toastShowTime = 0L
 
-    init {
+    var todayResponseBody: NationalRateListResponse? = null
+    var tomorrowResponseBody: NationalRateListResponse? = null
 
+    var isTomorrowEmpty = false
+
+    init {
         getCurrencies()
     }
 
@@ -38,13 +46,59 @@ class MainViewModel @Inject constructor(
         currencies.postValue(Resource.Loading())
         try {
             if (hasInternetConnection()) {
-                val response = RetrofitInstance.api.getCurrencies()
+                val todayResponse = RetrofitInstance.api.getCurrencies()
                 when {
-                    response.isSuccessful ->
-                        currencies.postValue(Resource.Success(response.body()!!))
-                    !response.isSuccessful ->
-                        currencies.postValue(Resource.Error(response.message()))
+                    todayResponse.isSuccessful -> todayResponseBody =
+                        todayResponse.body()!!
+
+                    !todayResponse.isSuccessful -> {
+                        currencies.postValue(Resource.Error(todayResponse.message()))
+                        return
+                    }
                 }
+                val tomorrowResponse =
+                    RetrofitInstance.api.getCurrencies(date = getDateTime(Day.TOMORROW).toString("dd.MM.yyyy"))
+                when {
+                    tomorrowResponse.isSuccessful -> tomorrowResponseBody =
+                        tomorrowResponse.body()!!
+
+                    !tomorrowResponse.isSuccessful -> {
+                        currencies.postValue(Resource.Error(tomorrowResponse.message()))
+                        return
+                    }
+                }
+                // Make yesterday request only if tomorrow's is empty
+                if (tomorrowResponseBody?.rates!!.isEmpty()) {
+                    isTomorrowEmpty = true
+                    val yesterdayResponse =
+                        RetrofitInstance.api.getCurrencies(date = getDateTime(Day.YESTERDAY).toString("dd.MM.yyyy"))
+                    when {
+                        yesterdayResponse.isSuccessful -> tomorrowResponseBody =
+                            yesterdayResponse.body()!!
+
+                        !yesterdayResponse.isSuccessful -> {
+                            currencies.postValue(Resource.Error(yesterdayResponse.message()))
+                            return
+                        }
+                    }
+                }
+                // Depending on date API returns different order of rates
+                // We have to reorder tomorrow's rates to correspond today's rates
+                val tomorrowResponseBodyOrdered: MutableList<Double> = mutableListOf()
+
+                for (currency in todayResponseBody!!.rates) {
+                     for (rate in tomorrowResponseBody!!.rates) {
+                        if (rate.code == currency.code) {
+                            tomorrowResponseBodyOrdered.add(rate.rate)
+                            break
+                        }
+                    }
+                }
+
+                val combinedResponse = CombinedResponse(todayResponseBody!!.rates, tomorrowResponseBodyOrdered)
+
+                currencies.postValue(Resource.Success(combinedResponse))
+
             } else {
                 currencies.postValue(Resource.Error("нет интернет соединения"))
             }

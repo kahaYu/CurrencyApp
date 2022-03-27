@@ -82,6 +82,26 @@ fun Date.toString(format: String, locale: Locale = Locale.getDefault()): String 
     return formatter.format(this)
 }
 
-fun getCurrentDateTime(): Date {
-    return Calendar.getInstance().time
+fun getDateTime(day: Day): Date {
+
+    val calendar = Calendar.getInstance()
+
+    return when (day) {
+        Day.TODAY -> calendar.time
+        Day.TOMORROW -> {
+            calendar.add(Calendar.DAY_OF_YEAR, 1)
+            calendar.time
+        }
+        Day.YESTERDAY -> {
+            calendar.add(Calendar.DAY_OF_YEAR, -1)
+            calendar.time
+        }
+    }
 }
+
+enum class Day {
+    TODAY,
+    TOMORROW,
+    YESTERDAY
+}
+

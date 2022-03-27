@@ -55,7 +55,7 @@ class CurrencyFragment : Fragment() {
                 is Resource.Success -> {
                     hideProgressBar()
                     response.data?.let { currensiesResponse ->
-                        currencyAdapter.list = currensiesResponse
+                        currencyAdapter.responseList = currensiesResponse
                         currencyAdapter.notifyDataSetChanged()
                     }
                 }

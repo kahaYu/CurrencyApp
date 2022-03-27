@@ -6,11 +6,12 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.raywenderlich.currencyapp.R
 import com.raywenderlich.currencyapp.databinding.CurrencyItemViewBinding
+import com.raywenderlich.currencyapp.model.CombinedResponse
 import com.raywenderlich.currencyapp.model.NationalRateListResponse
 
 class CurrencyAdapter : RecyclerView.Adapter<CurrencyAdapter.CurrencyViewHolder>() {
 
-    var list: NationalRateListResponse? = null
+    var responseList: CombinedResponse? = null
 
     class CurrencyViewHolder(itemView: View, val binding: CurrencyItemViewBinding) :
         RecyclerView.ViewHolder(itemView)
@@ -25,15 +26,15 @@ class CurrencyAdapter : RecyclerView.Adapter<CurrencyAdapter.CurrencyViewHolder>
 
     override fun onBindViewHolder(holder: CurrencyViewHolder, position: Int) {
         holder.binding.apply {
-            tvCurrencyEng.text = list?.rates?.get(position)?.iso
-            tvCurrencyRus.text = list?.rates?.get(position)?.name
-            tvCurrencyToday.text = list?.rates?.get(position)?.rate.toString()
-            tvQuantity.text = list?.rates?.get(position)?.quantity.toString()
-            tvCurrencyTomorrow.text = "123"
+            tvCurrencyEng.text = responseList?.todayResponse?.get(position)?.iso
+            tvCurrencyRus.text = responseList?.todayResponse?.get(position)?.name
+            tvCurrencyToday.text = responseList?.todayResponse?.get(position)?.rate.toString()
+            tvQuantity.text = responseList?.todayResponse?.get(position)?.quantity.toString()
+            tvCurrencyTomorrow.text = responseList?.tomorrowResponse?.get(position)?.toString()
         }
     }
 
     override fun getItemCount(): Int {
-        return list?.rates?.size ?: 0
+        return responseList?.todayResponse?.size ?: 0
     }
 }
