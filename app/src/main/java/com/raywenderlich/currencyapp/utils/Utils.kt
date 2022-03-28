@@ -99,6 +99,12 @@ fun getDateTime(day: Day): Date {
     }
 }
 
+fun Double.format(digits:Int) = String.Companion.format(
+    java.util.Locale.GERMAN,
+    "%.${digits}f",
+    this
+)
+
 enum class Day {
     TODAY,
     TOMORROW,

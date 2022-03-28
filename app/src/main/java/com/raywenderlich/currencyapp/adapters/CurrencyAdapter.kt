@@ -8,10 +8,12 @@ import com.raywenderlich.currencyapp.R
 import com.raywenderlich.currencyapp.databinding.CurrencyItemViewBinding
 import com.raywenderlich.currencyapp.model.CombinedResponse
 import com.raywenderlich.currencyapp.model.NationalRateListResponse
+import com.raywenderlich.currencyapp.model.Rate
+import com.raywenderlich.currencyapp.utils.format
 
 class CurrencyAdapter : RecyclerView.Adapter<CurrencyAdapter.CurrencyViewHolder>() {
 
-    var responseList: CombinedResponse? = null
+    var responseList: List<Rate>? = null
 
     class CurrencyViewHolder(itemView: View, val binding: CurrencyItemViewBinding) :
         RecyclerView.ViewHolder(itemView)
@@ -26,15 +28,15 @@ class CurrencyAdapter : RecyclerView.Adapter<CurrencyAdapter.CurrencyViewHolder>
 
     override fun onBindViewHolder(holder: CurrencyViewHolder, position: Int) {
         holder.binding.apply {
-            tvCurrencyEng.text = responseList?.todayResponse?.get(position)?.iso
-            tvCurrencyRus.text = responseList?.todayResponse?.get(position)?.name
-            tvCurrencyToday.text = responseList?.todayResponse?.get(position)?.rate.toString()
-            tvQuantity.text = responseList?.todayResponse?.get(position)?.quantity.toString()
-            tvCurrencyTomorrow.text = responseList?.tomorrowResponse?.get(position)?.toString()
+            tvCurrencyEng.text = responseList?.get(position)?.iso
+            tvCurrencyRus.text = responseList?.get(position)?.name
+            tvCurrencyToday.text = responseList?.get(position)?.rate?.format(4)
+            tvQuantity.text = responseList?.get(position)?.quantity.toString()
+            tvCurrencyTomorrow.text = responseList?.get(position)?.rateTomorrow?.format(4)
         }
     }
 
     override fun getItemCount(): Int {
-        return responseList?.todayResponse?.size ?: 0
+        return responseList?.size ?: 0
     }
 }

@@ -4,6 +4,7 @@ import android.net.ConnectivityManager
 import android.net.ConnectivityManager.*
 import android.net.NetworkCapabilities.*
 import android.os.Build
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,10 +12,7 @@ import com.raywenderlich.currencyapp.api.RetrofitInstance
 import com.raywenderlich.currencyapp.model.CombinedResponse
 import com.raywenderlich.currencyapp.model.NationalRateListResponse
 import com.raywenderlich.currencyapp.model.Rate
-import com.raywenderlich.currencyapp.utils.Day
-import com.raywenderlich.currencyapp.utils.Resource
-import com.raywenderlich.currencyapp.utils.getDateTime
-import com.raywenderlich.currencyapp.utils.toString
+import com.raywenderlich.currencyapp.utils.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import retrofit2.Response
@@ -26,7 +24,7 @@ class MainViewModel @Inject constructor(
     val connectivityManager: ConnectivityManager // Need application to check internet state
 ) : ViewModel() {
 
-    val currencies = MutableLiveData<Resource<CombinedResponse>>()
+    val currencies = MutableLiveData<Resource<List<Rate>>>()
     var toastShowTime = 0L
 
     var todayResponseBody: NationalRateListResponse? = null
@@ -48,9 +46,7 @@ class MainViewModel @Inject constructor(
             if (hasInternetConnection()) {
                 val todayResponse = RetrofitInstance.api.getCurrencies()
                 when {
-                    todayResponse.isSuccessful -> todayResponseBody =
-                        todayResponse.body()!!
-
+                    todayResponse.isSuccessful -> todayResponseBody = todayResponse.body()!!
                     !todayResponse.isSuccessful -> {
                         currencies.postValue(Resource.Error(todayResponse.message()))
                         return
@@ -71,7 +67,11 @@ class MainViewModel @Inject constructor(
                 if (tomorrowResponseBody?.rates!!.isEmpty()) {
                     isTomorrowEmpty = true
                     val yesterdayResponse =
-                        RetrofitInstance.api.getCurrencies(date = getDateTime(Day.YESTERDAY).toString("dd.MM.yyyy"))
+                        RetrofitInstance.api.getCurrencies(
+                            date = getDateTime(Day.YESTERDAY).toString(
+                                "dd.MM.yyyy"
+                            )
+                        )
                     when {
                         yesterdayResponse.isSuccessful -> tomorrowResponseBody =
                             yesterdayResponse.body()!!
@@ -87,15 +87,16 @@ class MainViewModel @Inject constructor(
                 val tomorrowResponseBodyOrdered: MutableList<Double> = mutableListOf()
 
                 for (currency in todayResponseBody!!.rates) {
-                     for (rate in tomorrowResponseBody!!.rates) {
+                    for (rate in tomorrowResponseBody!!.rates) {
                         if (rate.code == currency.code) {
-                            tomorrowResponseBodyOrdered.add(rate.rate)
+                            todayResponseBody!!.rates[todayResponseBody!!.rates.indexOf(currency)].rateTomorrow =
+                                rate.rate
                             break
                         }
                     }
                 }
 
-                val combinedResponse = CombinedResponse(todayResponseBody!!.rates, tomorrowResponseBodyOrdered)
+                val combinedResponse = todayResponseBody!!.rates
 
                 currencies.postValue(Resource.Success(combinedResponse))
 
