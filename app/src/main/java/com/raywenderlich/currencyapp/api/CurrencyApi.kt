@@ -15,7 +15,6 @@ interface CurrencyApi {
         @Query("currencyCode")
         currencyCode: Array<Int> = arrayOf(),
         @Query("date")
-        date: String = "25.03.2022"
-            //getDateTime(Day.TODAY).toString("dd.MM.yyyy")
+        date: String = getDateTime(Day.TODAY).toString("dd.MM.yyyy")
     ) : Response<NationalRateListResponse>
 }

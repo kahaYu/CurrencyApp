@@ -31,6 +31,8 @@ class MainViewModel @Inject constructor(
     var tomorrowResponseBody: NationalRateListResponse? = null
 
     var isTomorrowEmpty = false
+    var dateToday = MutableLiveData<String>()
+    var dateTomorrow = MutableLiveData<String>()
 
     init {
         getCurrencies()
@@ -42,6 +44,7 @@ class MainViewModel @Inject constructor(
 
     private suspend fun safeCurrenciesCall() {
         currencies.postValue(Resource.Loading())
+        isTomorrowEmpty = false
         try {
             if (hasInternetConnection()) {
                 val todayResponse = RetrofitInstance.api.getCurrencies()
@@ -99,6 +102,9 @@ class MainViewModel @Inject constructor(
                 val combinedResponse = todayResponseBody!!.rates
 
                 currencies.postValue(Resource.Success(combinedResponse))
+                dateToday.postValue(getDateTime(Day.TODAY).toString("dd.MM"))
+                var dayYesterdayOrTomorrow = if (isTomorrowEmpty) Day.YESTERDAY else Day.TOMORROW
+                dateTomorrow.postValue(getDateTime(dayYesterdayOrTomorrow).toString("dd.MM"))
 
             } else {
                 currencies.postValue(Resource.Error("нет интернет соединения"))

@@ -8,6 +8,10 @@
             name="fragment"
             type="com.raywenderlich.currencyapp.ui.CurrencyFragment" />
 
+        <variable
+            name="vm"
+            type="com.raywenderlich.currencyapp.ui.MainViewModel" />
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -18,10 +22,10 @@
             android:id="@+id/progressBar"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/tvHeader"
@@ -33,10 +37,10 @@
             android:textColor="@color/white"
             android:textSize="@dimen/header"
             android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@+id/tvHeaderSmall"
             app:layout_constraintEnd_toStartOf="@id/btSettings"
             app:layout_constraintStart_toEndOf="@id/btBack"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toTopOf="@+id/tvHeaderSmall"/>
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageButton
             android:id="@+id/btBack"
@@ -85,6 +89,8 @@
             android:layout_width="80dp"
             android:layout_height="32dp"
             android:background="@color/teal_700_transparent"
+            android:gravity="center"
+            android:text="@{vm.dateToday}"
             app:layout_constraintEnd_toStartOf="@+id/tvDateTomorrow"
             app:layout_constraintTop_toBottomOf="@+id/tvHeader" />
 
@@ -93,6 +99,8 @@
             android:layout_width="80dp"
             android:layout_height="32dp"
             android:background="@color/teal_700_transparent"
+            android:gravity="center"
+            android:text="@{vm.dateTomorrow}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvHeader" />
 

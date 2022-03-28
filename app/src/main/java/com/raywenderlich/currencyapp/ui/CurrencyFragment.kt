@@ -47,6 +47,8 @@ class CurrencyFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.fragment = this
+        binding.lifecycleOwner = this
+        binding.vm = vm
 
         setupRecyclerView()
 
