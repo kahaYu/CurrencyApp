@@ -1,5 +1,6 @@
 package com.raywenderlich.currencyapp.ui
 
+import android.content.SharedPreferences
 import android.net.ConnectivityManager
 import android.net.ConnectivityManager.*
 import android.net.NetworkCapabilities.*
@@ -7,6 +8,8 @@ import android.os.Build
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.raywenderlich.currencyapp.api.RetrofitInstance
 import com.raywenderlich.currencyapp.model.NationalRateListResponse
 import com.raywenderlich.currencyapp.model.Rate
@@ -18,7 +21,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    val connectivityManager: ConnectivityManager // Need application to check internet state
+    val connectivityManager: ConnectivityManager,
+    private val sp: SharedPreferences,
+    val spEditor: SharedPreferences.Editor// Need application to check internet state
 ) : ViewModel() {
 
     val currencies = MutableLiveData<Resource<List<Rate>>>()
@@ -31,6 +36,10 @@ class MainViewModel @Inject constructor(
     var dateToday = MutableLiveData<String>()
     var dateTomorrow = MutableLiveData<String>()
     var wordYesterdayOrTomorrow = MutableLiveData<String>()
+
+    val jsonList = Gson().toJson(mutableListOf<Int>())
+    val initialCodesJson = sp.getString("InitialCodes", jsonList)
+    val initialCodes: MutableList<Int> = Gson().fromJson(initialCodesJson, object: TypeToken<MutableList<Int>>(){}.type)
 
     init {
         getCurrencies()
@@ -47,7 +56,17 @@ class MainViewModel @Inject constructor(
             if (hasInternetConnection()) {
                 val todayResponse = RetrofitInstance.api.getCurrencies()
                 when {
-                    todayResponse.isSuccessful -> todayResponseBody = todayResponse.body()!!
+                    todayResponse.isSuccessful -> {
+                        todayResponseBody = todayResponse.body()!!
+                        // When app is launched first time, we capture order of rates by their codes
+                        // and save to SharedPreferences. To place rates in future according
+                        // the initial order
+                        if (initialCodes.isEmpty()) {
+                            todayResponseBody?.rates?.forEach { initialCodes.add(it.code) }
+                            val initialCodesJson = Gson().toJson(initialCodes)
+                            spEditor.putString("InitialCodes", initialCodesJson)
+                        }
+                    }
                     !todayResponse.isSuccessful -> {
                         currencies.postValue(Resource.Error(todayResponse.message()))
                         return
@@ -83,23 +102,29 @@ class MainViewModel @Inject constructor(
                         }
                     }
                 }
-                // Depending on date API returns different order of rates
-                // We have to reorder tomorrow's rates to correspond today's rates
-                val tomorrowResponseBodyOrdered: MutableList<Double> = mutableListOf()
-
-                for (currency in todayResponseBody!!.rates) {
+                // We have to reorder rates to correspond initial order saved in sp
+                val todaysResponseBodyOrdered: MutableList<Rate> = mutableListOf()
+                // Populate ordered list with response items
+                for (code in initialCodes) {
+                    for (rate in todayResponseBody!!.rates) {
+                        if (code == rate.code) {
+                            todaysResponseBodyOrdered.add(rate)
+                            break
+                        }
+                    }
+                }
+                // Add tomorrow rates to the items
+                for (_rate in todaysResponseBodyOrdered) {
                     for (rate in tomorrowResponseBody!!.rates) {
-                        if (rate.code == currency.code) {
-                            todayResponseBody!!.rates[todayResponseBody!!.rates.indexOf(currency)].rateTomorrow =
+                        if (_rate.code == rate.code) {
+                            todaysResponseBodyOrdered[todaysResponseBodyOrdered.indexOf(_rate)].rateTomorrow =
                                 rate.rate
                             break
                         }
                     }
                 }
 
-                val combinedResponse = todayResponseBody!!.rates
-
-                currencies.postValue(Resource.Success(combinedResponse))
+                currencies.postValue(Resource.Success(todaysResponseBodyOrdered))
                 dateToday.postValue(getDateTime(Day.TODAY).toString("dd.MM"))
                 var dayYesterdayOrTomorrow = if (isTomorrowEmpty) Day.YESTERDAY else Day.TOMORROW
                 dateTomorrow.postValue(getDateTime(dayYesterdayOrTomorrow).toString("dd.MM"))

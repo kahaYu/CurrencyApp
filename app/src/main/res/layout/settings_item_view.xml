@@ -10,6 +10,8 @@
         android:layout_height="20dp"
         android:layout_marginTop="4dp"
         android:hint="USD"
+        android:textStyle="bold"
+        android:textColor="@color/black"
         android:paddingStart="8dp"
         app:layout_constraintEnd_toStartOf="@id/swVisibility"
         app:layout_constraintStart_toStartOf="parent"

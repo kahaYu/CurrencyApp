@@ -17,6 +17,8 @@
             android:layout_marginTop="4dp"
             android:hint="USD"
             android:paddingStart="8dp"
+            android:textColor="@color/black"
+            android:textStyle="bold"
             app:layout_constraintEnd_toStartOf="@id/tvCurrencyToday"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -47,6 +49,7 @@
             android:layout_marginTop="4dp"
             android:gravity="center"
             android:hint="1,9264"
+            android:textColor="@color/black"
             app:layout_constraintEnd_toStartOf="@+id/tvCurrencyTomorrow"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -57,6 +60,7 @@
             android:layout_marginTop="4dp"
             android:gravity="center"
             android:hint="1,9231"
+            android:textColor="@color/black"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
