@@ -4,18 +4,15 @@ import android.net.ConnectivityManager
 import android.net.ConnectivityManager.*
 import android.net.NetworkCapabilities.*
 import android.os.Build
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.raywenderlich.currencyapp.api.RetrofitInstance
-import com.raywenderlich.currencyapp.model.CombinedResponse
 import com.raywenderlich.currencyapp.model.NationalRateListResponse
 import com.raywenderlich.currencyapp.model.Rate
 import com.raywenderlich.currencyapp.utils.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import retrofit2.Response
 import java.io.IOException
 import javax.inject.Inject
 
@@ -33,6 +30,7 @@ class MainViewModel @Inject constructor(
     var isTomorrowEmpty = false
     var dateToday = MutableLiveData<String>()
     var dateTomorrow = MutableLiveData<String>()
+    var wordYesterdayOrTomorrow = MutableLiveData<String>()
 
     init {
         getCurrencies()
@@ -105,6 +103,7 @@ class MainViewModel @Inject constructor(
                 dateToday.postValue(getDateTime(Day.TODAY).toString("dd.MM"))
                 var dayYesterdayOrTomorrow = if (isTomorrowEmpty) Day.YESTERDAY else Day.TOMORROW
                 dateTomorrow.postValue(getDateTime(dayYesterdayOrTomorrow).toString("dd.MM"))
+                wordYesterdayOrTomorrow.postValue(if (isTomorrowEmpty) "Вчера" else "Завтра")
 
             } else {
                 currencies.postValue(Resource.Error("нет интернет соединения"))

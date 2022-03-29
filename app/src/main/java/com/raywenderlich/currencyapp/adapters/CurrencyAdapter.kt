@@ -6,8 +6,6 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.raywenderlich.currencyapp.R
 import com.raywenderlich.currencyapp.databinding.CurrencyItemViewBinding
-import com.raywenderlich.currencyapp.model.CombinedResponse
-import com.raywenderlich.currencyapp.model.NationalRateListResponse
 import com.raywenderlich.currencyapp.model.Rate
 import com.raywenderlich.currencyapp.utils.format
 

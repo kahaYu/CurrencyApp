@@ -80,6 +80,7 @@
             android:background="@color/teal_700_transparent"
             android:gravity="center"
             android:text="@string/data"
+            android:textSize="14sp"
             android:textColor="@color/black"
             app:layout_constraintEnd_toStartOf="@+id/tvDateToday"
             app:layout_constraintTop_toBottomOf="@+id/tvHeader" />
@@ -87,22 +88,54 @@
         <TextView
             android:id="@+id/tvDateToday"
             android:layout_width="80dp"
-            android:layout_height="32dp"
+            android:layout_height="20dp"
+            android:paddingTop="4dp"
             android:background="@color/teal_700_transparent"
-            android:gravity="center"
+            android:gravity="center_horizontal"
+            android:foregroundGravity="bottom"
+            android:textColor="@color/black"
+            android:textSize="14sp"
             android:text="@{vm.dateToday}"
             app:layout_constraintEnd_toStartOf="@+id/tvDateTomorrow"
             app:layout_constraintTop_toBottomOf="@+id/tvHeader" />
 
         <TextView
-            android:id="@+id/tvDateTomorrow"
+            android:id="@+id/tvDayToday"
             android:layout_width="80dp"
-            android:layout_height="32dp"
+            android:layout_height="12dp"
             android:background="@color/teal_700_transparent"
             android:gravity="center"
+            android:text="@string/segonia"
+            android:textSize="8sp"
+            android:paddingBottom="2dp"
+            app:layout_constraintEnd_toStartOf="@+id/tvDateTomorrow"
+            app:layout_constraintTop_toBottomOf="@+id/tvDateToday" />
+
+        <TextView
+            android:id="@+id/tvDateTomorrow"
+            android:layout_width="80dp"
+            android:layout_height="20dp"
+            android:paddingTop="4dp"
+            android:background="@color/teal_700_transparent"
+            android:gravity="center_horizontal"
+            android:foregroundGravity="bottom"
+            android:textColor="@color/black"
+            android:textSize="14sp"
             android:text="@{vm.dateTomorrow}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvHeader" />
+
+        <TextView
+            android:id="@+id/tvDayTomorrow"
+            android:layout_width="80dp"
+            android:layout_height="12dp"
+            android:background="@color/teal_700_transparent"
+            android:gravity="center"
+            android:textSize="8sp"
+            android:paddingBottom="2dp"
+            android:text="@{vm.wordYesterdayOrTomorrow}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvDateTomorrow" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"
