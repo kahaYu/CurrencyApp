@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
@@ -27,7 +28,7 @@ class CurrencyFragment : Fragment() {
 
     private var binding by AutoClearedValue<FragmentCurrencyBinding>(this)
 
-    private val vm by viewModels<MainViewModel>()
+    private val vm by activityViewModels<MainViewModel>()
 
     private var jobNavigateToSettingsFragment: Job? = null
     private var jobNavigateBack: Job? = null

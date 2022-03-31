@@ -7,5 +7,6 @@ data class Rate(
     val code: Int,
     val quantity: Int,
     val date: String,
-    val name: String
+    val name: String,
+    var isChecked: Boolean = false
 )

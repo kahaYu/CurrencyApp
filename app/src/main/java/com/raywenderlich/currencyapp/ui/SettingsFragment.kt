@@ -5,11 +5,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.raywenderlich.currencyapp.R
+import com.raywenderlich.currencyapp.adapters.CurrencyAdapter
+import com.raywenderlich.currencyapp.adapters.SettingsAdapter
 import com.raywenderlich.currencyapp.databinding.FragmentCurrencyBinding
 import com.raywenderlich.currencyapp.databinding.FragmentSettingsBinding
 import com.raywenderlich.currencyapp.utils.AutoClearedValue
+import com.raywenderlich.currencyapp.utils.Resource
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.MainScope
@@ -22,6 +28,10 @@ class SettingsFragment: Fragment() {
     private var binding by AutoClearedValue<FragmentSettingsBinding>(this)
 
     private var jobNavigateBack: Job? = null
+
+    private val vm by activityViewModels<MainViewModel>()
+
+    private lateinit var settingsAdapter: SettingsAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -36,6 +46,13 @@ class SettingsFragment: Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.fragment = this
+
+        setupRecyclerView()
+
+        settingsAdapter.ratesList = vm.ratesOrderedSettingsScreen
+        settingsAdapter.notifyDataSetChanged()
+
+
     }
 
     override fun onPause() {
@@ -48,6 +65,16 @@ class SettingsFragment: Fragment() {
         jobNavigateBack = MainScope().launch { // Some delay to let animation of button play
             delay(210L)
             findNavController().navigateUp()
+        }
+    }
+
+    private fun setupRecyclerView() {
+        settingsAdapter = SettingsAdapter()
+        binding.recyclerView.apply {
+            adapter = settingsAdapter
+            layoutManager = LinearLayoutManager(activity)
+            //addOnScrollListener(this@BreakingNewsFragment.scrollListener)
+            setHasFixedSize(true) // Accelerate work of rv
         }
     }
 }

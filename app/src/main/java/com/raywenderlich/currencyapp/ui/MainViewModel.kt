@@ -37,11 +37,25 @@ class MainViewModel @Inject constructor(
     var dateTomorrow = MutableLiveData<String>()
     var wordYesterdayOrTomorrow = MutableLiveData<String>()
 
-    val jsonList = Gson().toJson(mutableListOf<Int>())
-    val initialCodesJson = sp.getString("InitialCodes", jsonList)
-    val initialCodes: MutableList<Int> = Gson().fromJson(initialCodesJson, object: TypeToken<MutableList<Int>>(){}.type)
+    // Getting complex objects from sp with help of json
+    val initialCodesDefaultJson = Gson().toJson(mutableListOf<Int>())
+    val initialCodesJson = sp.getString("InitialCodes", initialCodesDefaultJson)
+    val initialCodes: MutableList<Int> =
+        Gson().fromJson(initialCodesJson, object : TypeToken<MutableList<Int>>() {}.type)
+
+    val ratesOrderedSettingsScreenDefaultJson = Gson().toJson(mutableListOf<Rate>())
+    var ratesOrderedSettingsScreenJson = sp.getString("RatesOrderedSettingsScreen", ratesOrderedSettingsScreenDefaultJson)
+    var ratesOrderedSettingsScreen: MutableList<Rate> = Gson().fromJson(ratesOrderedSettingsScreenJson,
+        object : TypeToken<MutableList<Rate>>() {}.type
+    )
 
     init {
+        //ratesOrderedSettingsScreenJson =
+        //    sp.getString("RatesOrderedSettingsScreen", ratesOrderedSettingsScreenDefaultJson)!!
+        //ratesOrderedSettingsScreen = Gson().fromJson(
+        //    ratesOrderedSettingsScreenJson,
+        //    object : TypeToken<MutableList<Rate>>() {}.type
+        //)
         getCurrencies()
     }
 
@@ -122,6 +136,12 @@ class MainViewModel @Inject constructor(
                             break
                         }
                     }
+                }
+
+                if (ratesOrderedSettingsScreen.isEmpty()) {
+                    ratesOrderedSettingsScreen = todaysResponseBodyOrdered
+                    val ratesOrderedSettingsScreenJson = Gson().toJson(ratesOrderedSettingsScreen)
+                    spEditor.putString("RatesOrderedSettingsScreen", ratesOrderedSettingsScreenJson)
                 }
 
                 currencies.postValue(Resource.Success(todaysResponseBodyOrdered))
