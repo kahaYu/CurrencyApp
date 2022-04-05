@@ -8,6 +8,7 @@ import android.view.WindowInsetsController
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
+import com.raywenderlich.currencyapp.model.Rate
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.properties.ReadWriteProperty
@@ -77,6 +78,12 @@ fun Activity.hideSystemUI() {
 
 const val BASE_URL = "https://developerhub.alfabank.by:8273/partner/1.0.1/"
 
+object Codes {
+    const val USD = 840
+    const val EUR = 978
+    const val RUB = 643
+}
+
 fun Date.toString(format: String, locale: Locale = Locale.getDefault()): String {
     val formatter = SimpleDateFormat(format, locale)
     return formatter.format(this)
@@ -99,11 +106,43 @@ fun getDateTime(day: Day): Date {
     }
 }
 
-fun Double.format(digits:Int) = String.Companion.format(
+fun Double.format(digits: Int) = String.Companion.format(
     java.util.Locale.GERMAN,
     "%.${digits}f",
     this
 )
+
+fun MutableList<Rate>.getCurrency(code: Int): Rate? {
+    for (rate in this) {
+        if (rate.code == code) return rate
+    }
+    return null
+}
+
+fun MutableList<Rate>.getCurrencies(codes: List<Int>): List<Rate?> {
+    val listRate = mutableListOf<Rate>()
+    for (rate in this) {
+        for (code in codes) {
+            if (rate.code == code) {
+                listRate.add(rate)
+                break
+            }
+        }
+        if (listRate.size == codes.size) break
+    }
+    return listRate
+}
+
+fun MutableList<Rate>.changeState(codes: List<Int>, state: Boolean) {
+    for (rate in this) {
+        for (code in codes) {
+            if (rate.code == code) {
+                rate.isChecked = state
+                break
+            }
+        }
+    }
+}
 
 enum class Day {
     TODAY,

@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
@@ -29,9 +30,6 @@ class CurrencyFragment : Fragment() {
     private var binding by AutoClearedValue<FragmentCurrencyBinding>(this)
 
     private val vm by activityViewModels<MainViewModel>()
-
-    private var jobNavigateToSettingsFragment: Job? = null
-    private var jobNavigateBack: Job? = null
 
     private lateinit var currencyAdapter: CurrencyAdapter
 
@@ -76,22 +74,15 @@ class CurrencyFragment : Fragment() {
 
     }
 
-    override fun onPause() {
-        super.onPause()
-        jobNavigateToSettingsFragment?.cancel()
-        jobNavigateBack?.cancel()
-
-    }
-
     fun navigateToSettingsFragment () {
-        jobNavigateToSettingsFragment = MainScope().launch { // Some delay to let animation of button play
+            lifecycleScope.launch { // Some delay to let animation of button play
             delay(210L)
             findNavController().navigate(R.id.action_currencyFragment_to_settingsFragment)
         }
     }
 
     fun navigateBack () {
-        jobNavigateBack = MainScope().launch { // Some delay to let animation of button play
+            lifecycleScope.launch { // Some delay to let animation of button play
             delay(210L)
             requireActivity().moveTaskToBack(true)
         }

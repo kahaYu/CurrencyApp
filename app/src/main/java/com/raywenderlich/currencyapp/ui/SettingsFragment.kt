@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.raywenderlich.currencyapp.R
@@ -26,8 +27,6 @@ import kotlinx.coroutines.launch
 class SettingsFragment: Fragment() {
 
     private var binding by AutoClearedValue<FragmentSettingsBinding>(this)
-
-    private var jobNavigateBack: Job? = null
 
     private val vm by activityViewModels<MainViewModel>()
 
@@ -55,14 +54,8 @@ class SettingsFragment: Fragment() {
 
     }
 
-    override fun onPause() {
-        super.onPause()
-        jobNavigateBack?.cancel()
-
-    }
-
     fun navigateBack () {
-        jobNavigateBack = MainScope().launch { // Some delay to let animation of button play
+        lifecycleScope.launch { // Some delay to let animation of button play
             delay(210L)
             findNavController().navigateUp()
         }

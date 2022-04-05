@@ -5,11 +5,13 @@ import android.net.ConnectivityManager
 import android.net.ConnectivityManager.*
 import android.net.NetworkCapabilities.*
 import android.os.Build
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.raywenderlich.currencyapp.R
 import com.raywenderlich.currencyapp.api.RetrofitInstance
 import com.raywenderlich.currencyapp.model.NationalRateListResponse
 import com.raywenderlich.currencyapp.model.Rate
@@ -29,10 +31,10 @@ class MainViewModel @Inject constructor(
     val currencies = MutableLiveData<Resource<List<Rate>>>()
     var toastShowTime = 0L
 
-    var todayResponseBody: NationalRateListResponse? = null
-    var tomorrowResponseBody: NationalRateListResponse? = null
+    private var todayResponseBody = NationalRateListResponse(listOf())
+    private var tomorrowResponseBody = NationalRateListResponse(listOf())
 
-    var isTomorrowEmpty = false
+    var isTomorrowEmpty = false // Field for right appearance of day's name "Завтра\Вчера".
     var dateToday = MutableLiveData<String>()
     var dateTomorrow = MutableLiveData<String>()
     var wordYesterdayOrTomorrow = MutableLiveData<String>()
@@ -44,18 +46,16 @@ class MainViewModel @Inject constructor(
         Gson().fromJson(initialCodesJson, object : TypeToken<MutableList<Int>>() {}.type)
 
     val ratesOrderedSettingsScreenDefaultJson = Gson().toJson(mutableListOf<Rate>())
-    var ratesOrderedSettingsScreenJson = sp.getString("RatesOrderedSettingsScreen", ratesOrderedSettingsScreenDefaultJson)
-    var ratesOrderedSettingsScreen: MutableList<Rate> = Gson().fromJson(ratesOrderedSettingsScreenJson,
+    var ratesOrderedSettingsScreenJson =
+        sp.getString("RatesOrderedSettingsScreen", ratesOrderedSettingsScreenDefaultJson)
+    var ratesOrderedSettingsScreen: MutableList<Rate> = Gson().fromJson(
+        ratesOrderedSettingsScreenJson,
         object : TypeToken<MutableList<Rate>>() {}.type
     )
 
+    private val initiallyVisibleCurrencies = listOf<Int>(Codes.EUR, Codes.RUB, Codes.USD)
+
     init {
-        //ratesOrderedSettingsScreenJson =
-        //    sp.getString("RatesOrderedSettingsScreen", ratesOrderedSettingsScreenDefaultJson)!!
-        //ratesOrderedSettingsScreen = Gson().fromJson(
-        //    ratesOrderedSettingsScreenJson,
-        //    object : TypeToken<MutableList<Rate>>() {}.type
-        //)
         getCurrencies()
     }
 
@@ -68,81 +68,17 @@ class MainViewModel @Inject constructor(
         isTomorrowEmpty = false
         try {
             if (hasInternetConnection()) {
-                val todayResponse = RetrofitInstance.api.getCurrencies()
-                when {
-                    todayResponse.isSuccessful -> {
-                        todayResponseBody = todayResponse.body()!!
-                        // When app is launched first time, we capture order of rates by their codes
-                        // and save to SharedPreferences. To place rates in future according
-                        // the initial order
-                        if (initialCodes.isEmpty()) {
-                            todayResponseBody?.rates?.forEach { initialCodes.add(it.code) }
-                            val initialCodesJson = Gson().toJson(initialCodes)
-                            spEditor.putString("InitialCodes", initialCodesJson)
-                        }
-                    }
-                    !todayResponse.isSuccessful -> {
-                        currencies.postValue(Resource.Error(todayResponse.message()))
-                        return
-                    }
-                }
-                val tomorrowResponse =
-                    RetrofitInstance.api.getCurrencies(date = getDateTime(Day.TOMORROW).toString("dd.MM.yyyy"))
-                when {
-                    tomorrowResponse.isSuccessful -> tomorrowResponseBody =
-                        tomorrowResponse.body()!!
-
-                    !tomorrowResponse.isSuccessful -> {
-                        currencies.postValue(Resource.Error(tomorrowResponse.message()))
-                        return
-                    }
-                }
+                if (!currenciesCall()) return
+                if (!tomorrowCurrenciesCall()) return
                 // Make yesterday request only if tomorrow's is empty
-                if (tomorrowResponseBody?.rates!!.isEmpty()) {
-                    isTomorrowEmpty = true
-                    val yesterdayResponse =
-                        RetrofitInstance.api.getCurrencies(
-                            date = getDateTime(Day.YESTERDAY).toString(
-                                "dd.MM.yyyy"
-                            )
-                        )
-                    when {
-                        yesterdayResponse.isSuccessful -> tomorrowResponseBody =
-                            yesterdayResponse.body()!!
-
-                        !yesterdayResponse.isSuccessful -> {
-                            currencies.postValue(Resource.Error(yesterdayResponse.message()))
-                            return
-                        }
-                    }
+                if (tomorrowResponseBody.rates.isEmpty()) {
+                    if (!yesterdayCurrenciesCall()) return
                 }
                 // We have to reorder rates to correspond initial order saved in sp
-                val todaysResponseBodyOrdered: MutableList<Rate> = mutableListOf()
-                // Populate ordered list with response items
-                for (code in initialCodes) {
-                    for (rate in todayResponseBody!!.rates) {
-                        if (code == rate.code) {
-                            todaysResponseBodyOrdered.add(rate)
-                            break
-                        }
-                    }
-                }
-                // Add tomorrow rates to the items
-                for (_rate in todaysResponseBodyOrdered) {
-                    for (rate in tomorrowResponseBody!!.rates) {
-                        if (_rate.code == rate.code) {
-                            todaysResponseBodyOrdered[todaysResponseBodyOrdered.indexOf(_rate)].rateTomorrow =
-                                rate.rate
-                            break
-                        }
-                    }
-                }
-
-                if (ratesOrderedSettingsScreen.isEmpty()) {
-                    ratesOrderedSettingsScreen = todaysResponseBodyOrdered
-                    val ratesOrderedSettingsScreenJson = Gson().toJson(ratesOrderedSettingsScreen)
-                    spEditor.putString("RatesOrderedSettingsScreen", ratesOrderedSettingsScreenJson)
-                }
+                val todaysResponseBodyOrdered = orderTodaysResponseBody()
+                addTomorrowRatesToItems(todaysResponseBodyOrdered)
+                // Create settings list only if it doesn't exist
+                if (ratesOrderedSettingsScreen.isEmpty()) writeSettingsList(todaysResponseBodyOrdered)
 
                 currencies.postValue(Resource.Success(todaysResponseBodyOrdered))
                 dateToday.postValue(getDateTime(Day.TODAY).toString("dd.MM"))
@@ -161,7 +97,7 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun hasInternetConnection(): Boolean {
+    private fun hasInternetConnection(): Boolean {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val activeNetwork = connectivityManager.activeNetwork ?: return false
             val capabilities =
@@ -183,5 +119,106 @@ class MainViewModel @Inject constructor(
             }
         }
         return false
+    }
+
+    private suspend fun currenciesCall(): Boolean {
+        val todayResponse = RetrofitInstance.api.getCurrencies()
+        when {
+            todayResponse.isSuccessful -> {
+                todayResponseBody = todayResponse.body() ?: todayResponseBody
+                writeInitialCodes(todayResponseBody.rates)
+                return true
+            }
+            !todayResponse.isSuccessful -> {
+                currencies.postValue(Resource.Error(todayResponse.message()))
+                return false
+            }
+        }
+        return true
+    }
+
+    private suspend fun tomorrowCurrenciesCall(): Boolean {
+        val tomorrowResponse =
+            RetrofitInstance.api.getCurrencies(date = getDateTime(Day.TOMORROW).toString("dd.MM.yyyy"))
+        when {
+            tomorrowResponse.isSuccessful -> {
+                tomorrowResponseBody =
+                    tomorrowResponse.body()!!
+                return true
+            }
+
+            !tomorrowResponse.isSuccessful -> {
+                currencies.postValue(Resource.Error(tomorrowResponse.message()))
+                return false
+            }
+        }
+        return true
+    }
+
+    private suspend fun yesterdayCurrenciesCall(): Boolean {
+        isTomorrowEmpty = true
+        val yesterdayResponse =
+            RetrofitInstance.api.getCurrencies(
+                date = getDateTime(Day.YESTERDAY).toString(
+                    "dd.MM.yyyy"
+                )
+            )
+        when {
+            yesterdayResponse.isSuccessful -> {
+                tomorrowResponseBody =
+                    yesterdayResponse.body()!!
+                return true
+            }
+
+            !yesterdayResponse.isSuccessful -> {
+                currencies.postValue(Resource.Error(yesterdayResponse.message()))
+                return false
+            }
+        }
+        return true
+    }
+
+    private fun orderTodaysResponseBody(): MutableList<Rate>{
+        val todaysResponseBodyOrdered: MutableList<Rate> = mutableListOf()
+        // Populate ordered list with response items
+        for (code in initialCodes) {
+            for (rate in todayResponseBody.rates) {
+                if (rate.code == code) {
+                    todaysResponseBodyOrdered.add(rate)
+                    break
+                }
+            }
+        }
+        return todaysResponseBodyOrdered
+    }
+
+    private fun addTomorrowRatesToItems(todaysResponseBodyOrdered: MutableList<Rate>) {
+        for (_rate in todaysResponseBodyOrdered) {
+            for (rate in tomorrowResponseBody.rates) {
+                if (_rate.code == rate.code) {
+                    todaysResponseBodyOrdered[todaysResponseBodyOrdered.indexOf(_rate)].rateTomorrow =
+                        rate.rate
+                    break
+                }
+            }
+        }
+    }
+
+    private fun writeInitialCodes(responseRates: List<Rate>) {
+        // When app is launched first time, we capture order of rates by their codes
+        // and save to SharedPreferences. To place rates in future according
+        // the initial order
+        if (initialCodes.isEmpty()) {
+            responseRates.forEach { initialCodes.add(it.code) }
+            val initialCodesJson = Gson().toJson(initialCodes)
+            spEditor.putString("InitialCodes", initialCodesJson)
+        }
+    }
+
+    private fun writeSettingsList (todaysResponseBodyOrdered: MutableList<Rate>) {
+        ratesOrderedSettingsScreen = todaysResponseBodyOrdered
+        ratesOrderedSettingsScreen.changeState(initiallyVisibleCurrencies, true)
+        val ratesOrderedSettingsScreenJson = Gson().toJson(ratesOrderedSettingsScreen)
+        spEditor.putString("RatesOrderedSettingsScreen", ratesOrderedSettingsScreenJson)
     }
 }
