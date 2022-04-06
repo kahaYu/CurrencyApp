@@ -144,6 +144,15 @@ fun MutableList<Rate>.changeState(codes: List<Int>, state: Boolean) {
     }
 }
 
+fun MutableList<Rate>.changeState(code: Int, state: Boolean) {
+    for (rate in this) {
+        if (rate.code == code) {
+            rate.isChecked = state
+            break
+        }
+    }
+}
+
 enum class Day {
     TODAY,
     TOMORROW,

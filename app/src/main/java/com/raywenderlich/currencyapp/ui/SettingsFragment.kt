@@ -17,6 +17,8 @@ import com.raywenderlich.currencyapp.databinding.FragmentCurrencyBinding
 import com.raywenderlich.currencyapp.databinding.FragmentSettingsBinding
 import com.raywenderlich.currencyapp.utils.AutoClearedValue
 import com.raywenderlich.currencyapp.utils.Resource
+import com.raywenderlich.currencyapp.utils.changeState
+import com.raywenderlich.currencyapp.utils.getCurrency
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.MainScope
@@ -48,10 +50,6 @@ class SettingsFragment: Fragment() {
 
         setupRecyclerView()
 
-        settingsAdapter.ratesList = vm.ratesOrderedSettingsScreen
-        settingsAdapter.notifyDataSetChanged()
-
-
     }
 
     fun navigateBack () {
@@ -62,12 +60,24 @@ class SettingsFragment: Fragment() {
     }
 
     private fun setupRecyclerView() {
-        settingsAdapter = SettingsAdapter()
+        settingsAdapter = SettingsAdapter(vm.ratesOrderedSettingsScreen)
         binding.recyclerView.apply {
             adapter = settingsAdapter
             layoutManager = LinearLayoutManager(activity)
             //addOnScrollListener(this@BreakingNewsFragment.scrollListener)
             setHasFixedSize(true) // Accelerate work of rv
+        }
+        val listener = object : SettingsAdapter.onSwitchBoxListener {
+            override fun onSwitchBoxClicked(code: Int) {
+                // TO DO
+            }
+        }
+        settingsAdapter.setOnSwitchBoxListener(listener)
+    }
+
+    private fun changeState (code: Int) {
+        settingsAdapter.ratesList.apply {
+            changeState(code, !this.getCurrency(code)?.isChecked!!)
         }
     }
 }

@@ -5,13 +5,11 @@ import android.net.ConnectivityManager
 import android.net.ConnectivityManager.*
 import android.net.NetworkCapabilities.*
 import android.os.Build
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.raywenderlich.currencyapp.R
 import com.raywenderlich.currencyapp.api.RetrofitInstance
 import com.raywenderlich.currencyapp.model.NationalRateListResponse
 import com.raywenderlich.currencyapp.model.Rate
@@ -53,7 +51,9 @@ class MainViewModel @Inject constructor(
         object : TypeToken<MutableList<Rate>>() {}.type
     )
 
-    private val initiallyVisibleCurrencies = listOf<Int>(Codes.EUR, Codes.RUB, Codes.USD)
+    private val visibleCurrenciesCodes = listOf<Int>(Codes.EUR, Codes.RUB, Codes.USD)
+
+    var visibleCurrencies = mutableListOf<Rate>()
 
     init {
         getCurrencies()
@@ -79,8 +79,12 @@ class MainViewModel @Inject constructor(
                 addTomorrowRatesToItems(todaysResponseBodyOrdered)
                 // Create settings list only if it doesn't exist
                 if (ratesOrderedSettingsScreen.isEmpty()) writeSettingsList(todaysResponseBodyOrdered)
-
-                currencies.postValue(Resource.Success(todaysResponseBodyOrdered))
+                // Create list of visible items on main screen
+                for (currency in ratesOrderedSettingsScreen) {
+                    if (currency.isChecked) visibleCurrencies.add(currency)
+                }
+                // We pass to adapter only visible items
+                currencies.postValue(Resource.Success(visibleCurrencies))
                 dateToday.postValue(getDateTime(Day.TODAY).toString("dd.MM"))
                 var dayYesterdayOrTomorrow = if (isTomorrowEmpty) Day.YESTERDAY else Day.TOMORROW
                 dateTomorrow.postValue(getDateTime(dayYesterdayOrTomorrow).toString("dd.MM"))
@@ -217,7 +221,7 @@ class MainViewModel @Inject constructor(
 
     private fun writeSettingsList (todaysResponseBodyOrdered: MutableList<Rate>) {
         ratesOrderedSettingsScreen = todaysResponseBodyOrdered
-        ratesOrderedSettingsScreen.changeState(initiallyVisibleCurrencies, true)
+        ratesOrderedSettingsScreen.changeState(visibleCurrenciesCodes, true)
         val ratesOrderedSettingsScreenJson = Gson().toJson(ratesOrderedSettingsScreen)
         spEditor.putString("RatesOrderedSettingsScreen", ratesOrderedSettingsScreenJson)
     }

@@ -10,19 +10,37 @@ import com.raywenderlich.currencyapp.databinding.CurrencyItemViewBinding
 import com.raywenderlich.currencyapp.databinding.SettingsItemViewBinding
 import com.raywenderlich.currencyapp.model.Rate
 
-class SettingsAdapter : RecyclerView.Adapter<SettingsAdapter.SettingsViewHolder>() {
+class SettingsAdapter (var ratesList: MutableList<Rate> = mutableListOf()): RecyclerView.Adapter<SettingsAdapter.SettingsViewHolder>() {
 
-    var ratesList: List<Rate>? = null
+    private var listener: onSwitchBoxListener? = null
 
-    class SettingsViewHolder(itemView: View, val binding: SettingsItemViewBinding) :
-        RecyclerView.ViewHolder(itemView)
+    interface onSwitchBoxListener {
+        fun onSwitchBoxClicked(code: Int)
+    }
+
+    fun setOnSwitchBoxListener(_listener: onSwitchBoxListener) {
+        listener = _listener
+    }
+
+    inner class SettingsViewHolder(
+        val itemView: View,
+        val binding: SettingsItemViewBinding,
+        val listener: onSwitchBoxListener?
+    ) :
+        RecyclerView.ViewHolder(itemView) {
+        init {
+            binding.swVisibility.setOnClickListener {
+                var code = ratesList[adapterPosition].code
+                if (adapterPosition != RecyclerView.NO_POSITION) listener?.onSwitchBoxClicked(code)
+            }
+        }
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SettingsViewHolder {
         val itemView =
-            LayoutInflater.from(parent.context).
-            inflate(R.layout.settings_item_view, parent, false)
+            LayoutInflater.from(parent.context).inflate(R.layout.settings_item_view, parent, false)
         val binding = SettingsItemViewBinding.bind(itemView)
-        return SettingsViewHolder(itemView, binding)
+        return SettingsViewHolder(itemView, binding, listener)
     }
 
     override fun onBindViewHolder(holder: SettingsViewHolder, position: Int) {
