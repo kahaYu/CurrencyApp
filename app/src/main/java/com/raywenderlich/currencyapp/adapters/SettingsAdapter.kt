@@ -15,7 +15,7 @@ class SettingsAdapter (var ratesList: MutableList<Rate> = mutableListOf()): Recy
     private var listener: onSwitchBoxListener? = null
 
     interface onSwitchBoxListener {
-        fun onSwitchBoxClicked(code: Int)
+        fun onSwitchBoxClicked(code: Int, state: Boolean)
     }
 
     fun setOnSwitchBoxListener(_listener: onSwitchBoxListener) {
@@ -31,7 +31,7 @@ class SettingsAdapter (var ratesList: MutableList<Rate> = mutableListOf()): Recy
         init {
             binding.swVisibility.setOnClickListener {
                 var code = ratesList[adapterPosition].code
-                if (adapterPosition != RecyclerView.NO_POSITION) listener?.onSwitchBoxClicked(code)
+                if (adapterPosition != RecyclerView.NO_POSITION) listener?.onSwitchBoxClicked(code, binding.swVisibility.isChecked)
             }
         }
     }
@@ -45,14 +45,14 @@ class SettingsAdapter (var ratesList: MutableList<Rate> = mutableListOf()): Recy
 
     override fun onBindViewHolder(holder: SettingsViewHolder, position: Int) {
         holder.binding.apply {
-            tvCurrencyEng.text = ratesList?.get(position)?.iso
-            tvCurrencyRus.text = ratesList?.get(position)?.name
-            tvQuantity.text = ratesList?.get(position)?.quantity.toString()
-            swVisibility.isChecked = ratesList?.get(position)?.isChecked!!
+            tvCurrencyEng.text = ratesList.get(position).iso
+            tvCurrencyRus.text = ratesList.get(position).name
+            tvQuantity.text = ratesList.get(position).quantity.toString()
+            swVisibility.isChecked = ratesList.get(position).isChecked
         }
     }
 
     override fun getItemCount(): Int {
-        return ratesList?.size ?: 0
+        return ratesList.size ?: 0
     }
 }

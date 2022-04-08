@@ -38,22 +38,21 @@ class MainViewModel @Inject constructor(
     var wordYesterdayOrTomorrow = MutableLiveData<String>()
 
     // Getting complex objects from sp with help of json
-    val initialCodesDefaultJson = Gson().toJson(mutableListOf<Int>())
+    val initialCodesDefaultJson = Gson().toJson(mutableMapOf<Int,Boolean>())
     val initialCodesJson = sp.getString("InitialCodes", initialCodesDefaultJson)
-    val initialCodes: MutableList<Int> =
-        Gson().fromJson(initialCodesJson, object : TypeToken<MutableList<Int>>() {}.type)
+    val initialCodes: MutableMap<Int, Boolean> =
+        Gson().fromJson(
+            initialCodesJson,
+            object : TypeToken<MutableMap<Int, Boolean>>() {}.type
+        )
 
-    val ratesOrderedSettingsScreenDefaultJson = Gson().toJson(mutableListOf<Rate>())
-    var ratesOrderedSettingsScreenJson =
-        sp.getString("RatesOrderedSettingsScreen", ratesOrderedSettingsScreenDefaultJson)
-    var ratesOrderedSettingsScreen: MutableList<Rate> = Gson().fromJson(
-        ratesOrderedSettingsScreenJson,
-        object : TypeToken<MutableList<Rate>>() {}.type
-    )
+    var todaysResponseBodyOrdered = mutableListOf<Rate>()
 
-    private val visibleCurrenciesCodes = listOf<Int>(Codes.EUR, Codes.RUB, Codes.USD)
+    private val initiallyVisibleCurrenciesCodes = listOf<Int>(Codes.EUR, Codes.RUB, Codes.USD)
+    val newVisibleCurrenciesCodes = mutableListOf<Int>()
 
-    var visibleCurrencies = mutableListOf<Rate>()
+    var initiallyVisibleCurrencies = mutableListOf<Rate>()
+    var newVisibleCurrencies = mutableListOf<Rate>()
 
     init {
         getCurrencies()
@@ -75,16 +74,28 @@ class MainViewModel @Inject constructor(
                     if (!yesterdayCurrenciesCall()) return
                 }
                 // We have to reorder rates to correspond initial order saved in sp
-                val todaysResponseBodyOrdered = orderTodaysResponseBody()
+                // 4. Создаём новый список. Располагаем в нём элементы согласно списку кодов
+                todaysResponseBodyOrdered = orderTodaysResponseBody()
                 addTomorrowRatesToItems(todaysResponseBodyOrdered)
-                // Create settings list only if it doesn't exist
-                if (ratesOrderedSettingsScreen.isEmpty()) writeSettingsList(todaysResponseBodyOrdered)
-                // Create list of visible items on main screen
-                for (currency in ratesOrderedSettingsScreen) {
-                    if (currency.isChecked) visibleCurrencies.add(currency)
-                }
+                // 5. Меняем стейт списка Х в соответствие со списком включённых кодов O.
+                todaysResponseBodyOrdered.changeState(initialCodes)
+                // 6. Создаём список Н элементов для отображения.
+                // Добавляем в этот список только те элементы от Х, у которых включена видимость.
+                for (currency in todaysResponseBodyOrdered) {
+                        if (currency.isChecked) initiallyVisibleCurrencies.add(currency)
+                    }
+
+                //// Create settings list only if it doesn't exist
+                //if (ratesOrderedSettingsScreen.isEmpty()) writeSettingsList(
+                //    todaysResponseBodyOrdered
+                //)
+                //// Create list of visible items on main screen
+                //for (currency in ratesOrderedSettingsScreen) {
+                //    if (currency.isChecked) initiallyVisibleCurrencies.add(currency)
+                //}
+                //newVisibleCurrencies = initiallyVisibleCurrencies
                 // We pass to adapter only visible items
-                currencies.postValue(Resource.Success(visibleCurrencies))
+                currencies.postValue(Resource.Success(initiallyVisibleCurrencies))
                 dateToday.postValue(getDateTime(Day.TODAY).toString("dd.MM"))
                 var dayYesterdayOrTomorrow = if (isTomorrowEmpty) Day.YESTERDAY else Day.TOMORROW
                 dateTomorrow.postValue(getDateTime(dayYesterdayOrTomorrow).toString("dd.MM"))
@@ -129,7 +140,9 @@ class MainViewModel @Inject constructor(
         val todayResponse = RetrofitInstance.api.getCurrencies()
         when {
             todayResponse.isSuccessful -> {
+                // 1. Получаем список всех валют
                 todayResponseBody = todayResponse.body() ?: todayResponseBody
+                // 2. Создаём список кодов всех полученных валют в виде мапы.
                 writeInitialCodes(todayResponseBody.rates)
                 return true
             }
@@ -182,10 +195,10 @@ class MainViewModel @Inject constructor(
         return true
     }
 
-    private fun orderTodaysResponseBody(): MutableList<Rate>{
+    private fun orderTodaysResponseBody(): MutableList<Rate> {
         val todaysResponseBodyOrdered: MutableList<Rate> = mutableListOf()
         // Populate ordered list with response items
-        for (code in initialCodes) {
+        for (code in initialCodes.keys) {
             for (rate in todayResponseBody.rates) {
                 if (rate.code == code) {
                     todaysResponseBodyOrdered.add(rate)
@@ -213,16 +226,22 @@ class MainViewModel @Inject constructor(
         // and save to SharedPreferences. To place rates in future according
         // the initial order
         if (initialCodes.isEmpty()) {
-            responseRates.forEach { initialCodes.add(it.code) }
+            responseRates.forEach {
+                initialCodes.put(
+                    it.code,
+                    it.code == Codes.EUR
+                    || it.code == Codes.USD
+                    || it.code == Codes.RUB
+                )
+            }
+            // 3. Сохраняем список кодов в SP
             val initialCodesJson = Gson().toJson(initialCodes)
             spEditor.putString("InitialCodes", initialCodesJson)
         }
     }
 
-    private fun writeSettingsList (todaysResponseBodyOrdered: MutableList<Rate>) {
-        ratesOrderedSettingsScreen = todaysResponseBodyOrdered
-        ratesOrderedSettingsScreen.changeState(visibleCurrenciesCodes, true)
-        val ratesOrderedSettingsScreenJson = Gson().toJson(ratesOrderedSettingsScreen)
-        spEditor.putString("RatesOrderedSettingsScreen", ratesOrderedSettingsScreenJson)
+    fun mergeChangesToVisibleCurrencies() {
+        //currencies.postValue(Resource.Success(newVisibleCurrencies))
+        //ratesOrderedSettingsScreen.changeState(newVisibleCurrencies)
     }
 }

@@ -143,11 +143,29 @@ fun MutableList<Rate>.changeState(codes: List<Int>, state: Boolean) {
         }
     }
 }
-
+fun MutableList<Rate>.changeState(rates: List<Rate>) {
+    for (rate in this) {
+        for (currency in rates) {
+            if (rate.code == currency.code) {
+                rate.isChecked = currency.isChecked
+                break
+            }
+        }
+    }
+}
 fun MutableList<Rate>.changeState(code: Int, state: Boolean) {
     for (rate in this) {
         if (rate.code == code) {
             rate.isChecked = state
+            break
+        }
+    }
+}
+fun MutableList<Rate>.changeState(codes: Map<Int, Boolean>) {
+    for (rate in this) {
+        for (currency in codes)
+        if (rate.code == currency.key) {
+            rate.isChecked = currency.value
             break
         }
     }

@@ -2,9 +2,12 @@ package com.raywenderlich.currencyapp.ui
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.lifecycle.Observer
 import androidx.navigation.findNavController
 import com.raywenderlich.currencyapp.R
 import com.raywenderlich.currencyapp.databinding.ActivityMainBinding

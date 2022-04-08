@@ -1,38 +1,34 @@
 package com.raywenderlich.currencyapp.ui
 
 import android.os.Bundle
+import android.provider.Telephony
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.raywenderlich.currencyapp.R
-import com.raywenderlich.currencyapp.adapters.CurrencyAdapter
 import com.raywenderlich.currencyapp.adapters.SettingsAdapter
-import com.raywenderlich.currencyapp.databinding.FragmentCurrencyBinding
 import com.raywenderlich.currencyapp.databinding.FragmentSettingsBinding
+import com.raywenderlich.currencyapp.model.Rate
 import com.raywenderlich.currencyapp.utils.AutoClearedValue
-import com.raywenderlich.currencyapp.utils.Resource
-import com.raywenderlich.currencyapp.utils.changeState
 import com.raywenderlich.currencyapp.utils.getCurrency
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class SettingsFragment: Fragment() {
+class SettingsFragment : Fragment() {
 
     private var binding by AutoClearedValue<FragmentSettingsBinding>(this)
 
     private val vm by activityViewModels<MainViewModel>()
 
     private lateinit var settingsAdapter: SettingsAdapter
+
+    private val modifyedCurrencies = mutableListOf<Rate>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -52,7 +48,7 @@ class SettingsFragment: Fragment() {
 
     }
 
-    fun navigateBack () {
+    fun navigateBack() {
         lifecycleScope.launch { // Some delay to let animation of button play
             delay(210L)
             findNavController().navigateUp()
@@ -60,7 +56,8 @@ class SettingsFragment: Fragment() {
     }
 
     private fun setupRecyclerView() {
-        settingsAdapter = SettingsAdapter(vm.ratesOrderedSettingsScreen)
+        // 7. Во фрагменте настроек назначаем адаптеру список Х.
+        settingsAdapter = SettingsAdapter(vm.todaysResponseBodyOrdered)
         binding.recyclerView.apply {
             adapter = settingsAdapter
             layoutManager = LinearLayoutManager(activity)
@@ -68,16 +65,19 @@ class SettingsFragment: Fragment() {
             setHasFixedSize(true) // Accelerate work of rv
         }
         val listener = object : SettingsAdapter.onSwitchBoxListener {
-            override fun onSwitchBoxClicked(code: Int) {
-                // TO DO
+            override fun onSwitchBoxClicked(code: Int, state: Boolean) {
+                // 8. При изменении видимости в настройках, создаём новый список Р изменённых элементов.
+                if (!modifyedCurrencies.contains(vm.todaysResponseBodyOrdered.getCurrency(code)!!))
+                    modifyedCurrencies.add(vm.todaysResponseBodyOrdered.getCurrency(code)!!.copy())
+                modifyedCurrencies.getCurrency(code)?.isChecked = state
             }
         }
         settingsAdapter.setOnSwitchBoxListener(listener)
     }
 
-    private fun changeState (code: Int) {
-        settingsAdapter.ratesList.apply {
-            changeState(code, !this.getCurrency(code)?.isChecked!!)
-        }
-    }
+    //private fun changeState (code: Int) {
+    //    settingsAdapter.ratesList.apply {
+    //        changeState(code, !this.getCurrency(code)?.isChecked!!)
+    //    }
+    //}
 }

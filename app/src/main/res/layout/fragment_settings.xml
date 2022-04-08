@@ -8,6 +8,10 @@
             name="fragment"
             type="com.raywenderlich.currencyapp.ui.SettingsFragment" />
 
+        <variable
+            name="vm"
+            type="com.raywenderlich.currencyapp.ui.MainViewModel" />
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -46,7 +50,8 @@
             android:background="@color/teal_700"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:src="@drawable/ic_apply_selector" />
+            android:src="@drawable/ic_apply_selector"
+            android:onClick="@{() -> vm.mergeChangesToVisibleCurrencies()}"/>
 
         <TextView
             android:id="@+id/placeHolder"
