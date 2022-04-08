@@ -47,6 +47,11 @@ class SettingsFragment : Fragment() {
 
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        vm.modifyedCurrencies.clear()
+    }
+
     fun navigateBack() {
         lifecycleScope.launch { // Some delay to let animation of button play
             delay(210L)

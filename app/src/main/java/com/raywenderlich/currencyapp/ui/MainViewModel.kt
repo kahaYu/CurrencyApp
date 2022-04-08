@@ -38,13 +38,15 @@ class MainViewModel @Inject constructor(
     var wordYesterdayOrTomorrow = MutableLiveData<String>()
 
     // Getting complex objects from sp with help of json
-    val initialCodesDefaultJson = Gson().toJson(mutableMapOf<Int,Boolean>())
+    val initialCodesDefaultJson = Gson().toJson(mutableMapOf<Int, Boolean>())
     val initialCodesJson = sp.getString("InitialCodes", initialCodesDefaultJson)
     val initialCodes: MutableMap<Int, Boolean> =
         Gson().fromJson(
             initialCodesJson,
             object : TypeToken<MutableMap<Int, Boolean>>() {}.type
         )
+
+    val initialCodesList = mutableListOf<Int>()
 
     var todaysResponseBodyOrdered = mutableListOf<Rate>()
 
@@ -84,19 +86,8 @@ class MainViewModel @Inject constructor(
                 // 6. Создаём список Н элементов для отображения.
                 // Добавляем в этот список только те элементы от Х, у которых включена видимость.
                 for (currency in todaysResponseBodyOrdered) {
-                        if (currency.isChecked) initiallyVisibleCurrencies.add(currency)
-                    }
-
-                //// Create settings list only if it doesn't exist
-                //if (ratesOrderedSettingsScreen.isEmpty()) writeSettingsList(
-                //    todaysResponseBodyOrdered
-                //)
-                //// Create list of visible items on main screen
-                //for (currency in ratesOrderedSettingsScreen) {
-                //    if (currency.isChecked) initiallyVisibleCurrencies.add(currency)
-                //}
-                //newVisibleCurrencies = initiallyVisibleCurrencies
-                // We pass to adapter only visible items
+                    if (currency.isChecked) initiallyVisibleCurrencies.add(currency)
+                }
                 currencies.postValue(Resource.Success(initiallyVisibleCurrencies))
                 dateToday.postValue(getDateTime(Day.TODAY).toString("dd.MM"))
                 var dayYesterdayOrTomorrow = if (isTomorrowEmpty) Day.YESTERDAY else Day.TOMORROW
@@ -232,9 +223,10 @@ class MainViewModel @Inject constructor(
                 initialCodes.put(
                     it.code,
                     it.code == Codes.EUR
-                    || it.code == Codes.USD
-                    || it.code == Codes.RUB
+                            || it.code == Codes.USD
+                            || it.code == Codes.RUB
                 )
+                initialCodesList.add(it.code)
             }
             // 3. Сохраняем список кодов в SP
             val initialCodesJson = Gson().toJson(initialCodes)
@@ -247,16 +239,32 @@ class MainViewModel @Inject constructor(
         for (rate in modifyedCurrencies) {
             when {
                 rate.isChecked -> {
-                    if (!initiallyVisibleCurrencies.contains(rate))
+                    if (!initiallyVisibleCurrencies.getAllCodes().contains(rate.code))
                         initiallyVisibleCurrencies.add(rate)
                 }
                 !rate.isChecked -> {
-                    if (initiallyVisibleCurrencies.contains(rate))
-                        initiallyVisibleCurrencies.remove(rate)
+                    if (initiallyVisibleCurrencies.getAllCodes().contains(rate.code))
+                        initiallyVisibleCurrencies.removeRateAtCode(rate.code)
                 }
             }
         }
         toastMessage.postValue("Сохранено")
-        currencies.postValue(Resource.Success(initiallyVisibleCurrencies))
+        // Sort rates according to initial codes order
+        currencies.postValue(Resource.Success(sortVisibleCurrencies(initiallyVisibleCurrencies)))
+        modifyedCurrencies.clear()
+    }
+
+    private fun sortVisibleCurrencies(initiallyVisibleCurrencies: List<Rate>): List<Rate> {
+        val initiallyVisibleCurrenciesSorted = mutableListOf<Rate>()
+
+        for (code in initialCodesList) {
+            for (currency in initiallyVisibleCurrencies) {
+                if (code == currency.code) {
+                    initiallyVisibleCurrenciesSorted.add(currency)
+                    break
+                }
+            }
+        }
+        return initiallyVisibleCurrenciesSorted
     }
 }

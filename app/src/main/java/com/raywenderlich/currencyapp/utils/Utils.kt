@@ -118,7 +118,6 @@ fun MutableList<Rate>.getCurrency(code: Int): Rate? {
     }
     return null
 }
-
 fun MutableList<Rate>.getCurrencies(codes: List<Int>): List<Rate?> {
     val listRate = mutableListOf<Rate>()
     for (rate in this) {
@@ -132,7 +131,13 @@ fun MutableList<Rate>.getCurrencies(codes: List<Int>): List<Rate?> {
     }
     return listRate
 }
-
+fun MutableList<Rate>.getAllCodes(): List<Int?> {
+    val listCodes = mutableListOf<Int>()
+    for (rate in this) {
+        listCodes.add(rate.code)
+    }
+    return listCodes
+}
 fun MutableList<Rate>.changeState(codes: List<Int>, state: Boolean) {
     for (rate in this) {
         for (code in codes) {
@@ -169,6 +174,18 @@ fun MutableList<Rate>.changeState(codes: Map<Int, Boolean>) {
             break
         }
     }
+}
+fun MutableList<Rate>.removeRateAtCode(code: Int) {
+    var shouldRemove = false
+    var rateForRemove: Rate? = null
+    for (rate in this) {
+       if (rate.code == code) {
+           shouldRemove = true
+           rateForRemove = rate
+           break
+       }
+    }
+    if (shouldRemove) this.remove(rateForRemove)
 }
 
 enum class Day {
