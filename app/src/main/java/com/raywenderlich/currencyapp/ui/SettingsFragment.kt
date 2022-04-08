@@ -28,8 +28,6 @@ class SettingsFragment : Fragment() {
 
     private lateinit var settingsAdapter: SettingsAdapter
 
-    private val modifyedCurrencies = mutableListOf<Rate>()
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -43,6 +41,7 @@ class SettingsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.fragment = this
+        binding.vm = vm
 
         setupRecyclerView()
 
@@ -67,9 +66,9 @@ class SettingsFragment : Fragment() {
         val listener = object : SettingsAdapter.onSwitchBoxListener {
             override fun onSwitchBoxClicked(code: Int, state: Boolean) {
                 // 8. При изменении видимости в настройках, создаём новый список Р изменённых элементов.
-                if (!modifyedCurrencies.contains(vm.todaysResponseBodyOrdered.getCurrency(code)!!))
-                    modifyedCurrencies.add(vm.todaysResponseBodyOrdered.getCurrency(code)!!.copy())
-                modifyedCurrencies.getCurrency(code)?.isChecked = state
+                if (!vm.modifyedCurrencies.contains(vm.todaysResponseBodyOrdered.getCurrency(code)!!))
+                    vm.modifyedCurrencies.add(vm.todaysResponseBodyOrdered.getCurrency(code)!!.copy())
+                vm.modifyedCurrencies.getCurrency(code)?.isChecked = state
             }
         }
         settingsAdapter.setOnSwitchBoxListener(listener)

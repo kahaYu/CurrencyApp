@@ -52,7 +52,9 @@ class MainViewModel @Inject constructor(
     val newVisibleCurrenciesCodes = mutableListOf<Int>()
 
     var initiallyVisibleCurrencies = mutableListOf<Rate>()
-    var newVisibleCurrencies = mutableListOf<Rate>()
+    val modifyedCurrencies = mutableListOf<Rate>()
+
+    val toastMessage = MutableLiveData<String>()
 
     init {
         getCurrencies()
@@ -241,7 +243,20 @@ class MainViewModel @Inject constructor(
     }
 
     fun mergeChangesToVisibleCurrencies() {
-        //currencies.postValue(Resource.Success(newVisibleCurrencies))
-        //ratesOrderedSettingsScreen.changeState(newVisibleCurrencies)
+        todaysResponseBodyOrdered.changeState(modifyedCurrencies)
+        for (rate in modifyedCurrencies) {
+            when {
+                rate.isChecked -> {
+                    if (!initiallyVisibleCurrencies.contains(rate))
+                        initiallyVisibleCurrencies.add(rate)
+                }
+                !rate.isChecked -> {
+                    if (initiallyVisibleCurrencies.contains(rate))
+                        initiallyVisibleCurrencies.remove(rate)
+                }
+            }
+        }
+        toastMessage.postValue("Сохранено")
+        currencies.postValue(Resource.Success(initiallyVisibleCurrencies))
     }
 }
