@@ -1,16 +1,21 @@
 package com.raywenderlich.currencyapp.ui
 
+import android.app.Application
+import android.content.Context
 import android.content.SharedPreferences
 import android.net.ConnectivityManager
 import android.net.ConnectivityManager.*
 import android.net.NetworkCapabilities.*
 import android.os.Build
+import android.util.Log
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.raywenderlich.currencyapp.api.RetrofitInstance
+import com.raywenderlich.currencyapp.di.CurrencyApplication
 import com.raywenderlich.currencyapp.model.NationalRateListResponse
 import com.raywenderlich.currencyapp.model.Rate
 import com.raywenderlich.currencyapp.utils.*
@@ -38,15 +43,20 @@ class MainViewModel @Inject constructor(
     var wordYesterdayOrTomorrow = MutableLiveData<String>()
 
     // Getting complex objects from sp with help of json
-    val initialCodesDefaultJson = Gson().toJson(mutableMapOf<Int, Boolean>())
-    val initialCodesJson = sp.getString("InitialCodes", initialCodesDefaultJson)
-    val initialCodes: MutableMap<Int, Boolean> =
+    private val initialCodesDefaultJson = Gson().toJson(mutableMapOf<Int, Boolean>())
+    private val initialCodesJson = sp.getString("InitialCodes", initialCodesDefaultJson)
+    private var initialCodes: MutableMap<Int, Boolean> = // Code attached to state
         Gson().fromJson(
             initialCodesJson,
             object : TypeToken<MutableMap<Int, Boolean>>() {}.type
         )
-
-    val initialCodesList = mutableListOf<Int>()
+    // Codes ordered properly. Main field, where we manage order of codes
+    private val codesListDefaultJson = Gson().toJson(mutableListOf<Int>())
+    private val codesListJson = sp.getString("CodesList", codesListDefaultJson)
+    private val codesList: MutableList<Int> =
+        Gson().fromJson(
+            codesListJson,
+            object : TypeToken<MutableList<Int>>() {}.type)
 
     var todaysResponseBodyOrdered = mutableListOf<Rate>()
 
@@ -59,6 +69,8 @@ class MainViewModel @Inject constructor(
     val toastMessage = MutableLiveData<String>()
 
     init {
+        //if (sp.all.isEmpty()) Log.e("SPYura", "From init: SP is empty")
+        //else Log.e("SPYura", "From init: SP contains something")
         getCurrencies()
     }
 
@@ -226,15 +238,19 @@ class MainViewModel @Inject constructor(
                             || it.code == Codes.USD
                             || it.code == Codes.RUB
                 )
-                initialCodesList.add(it.code)
+                codesList.add(it.code)
             }
-            // 3. Сохраняем список кодов в SP
+            // 3. Сохраняем мапу кодов в SP
             val initialCodesJson = Gson().toJson(initialCodes)
-            spEditor.putString("InitialCodes", initialCodesJson)
+            spEditor.putString("InitialCodes", initialCodesJson).apply()
+            // 3.1 Сохраняем сисок кодов в SP
+            val codesJson = Gson().toJson(codesList)
+            spEditor.putString("CodesList", codesJson).apply()
         }
     }
 
     fun mergeChangesToVisibleCurrencies() {
+        // Change list for displaying in settings fragment
         todaysResponseBodyOrdered.changeState(modifyedCurrencies)
         for (rate in modifyedCurrencies) {
             when {
@@ -252,12 +268,18 @@ class MainViewModel @Inject constructor(
         // Sort rates according to initial codes order
         currencies.postValue(Resource.Success(sortVisibleCurrencies(initiallyVisibleCurrencies)))
         modifyedCurrencies.clear()
+        // Save new states in sp
+        val _initialCodesJson = Gson().toJson(changedInitialCodes())
+        spEditor.putString("InitialCodes", _initialCodesJson).apply()
+        //Log.e("SPYura", "From merge: SP contains ${sp.getString("InitialCodes", "123")}")
+        //if (sp.all.isEmpty()) Log.e("SPYura", "From merge: SP is empty")
+        //else Log.e("SPYura", "From merge: SP contains something")
     }
 
     private fun sortVisibleCurrencies(initiallyVisibleCurrencies: List<Rate>): List<Rate> {
         val initiallyVisibleCurrenciesSorted = mutableListOf<Rate>()
 
-        for (code in initialCodesList) {
+        for (code in codesList) {
             for (currency in initiallyVisibleCurrencies) {
                 if (code == currency.code) {
                     initiallyVisibleCurrenciesSorted.add(currency)
@@ -266,5 +288,21 @@ class MainViewModel @Inject constructor(
             }
         }
         return initiallyVisibleCurrenciesSorted
+    }
+
+    private fun changedInitialCodes (): MutableMap<Int, Boolean> {
+        val _initialCodes = mutableMapOf<Int, Boolean>()
+        for (pair in initialCodes) {
+            _initialCodes[pair.key] = false
+        }
+        for (rate in initiallyVisibleCurrencies) {
+            for (pair in _initialCodes) {
+                if (rate.code == pair.key) {
+                    _initialCodes[pair.key] = true
+                    break
+                }
+            }
+        }
+        return _initialCodes
     }
 }
