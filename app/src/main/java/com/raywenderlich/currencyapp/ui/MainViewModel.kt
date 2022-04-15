@@ -1,21 +1,16 @@
 package com.raywenderlich.currencyapp.ui
 
-import android.app.Application
-import android.content.Context
 import android.content.SharedPreferences
 import android.net.ConnectivityManager
 import android.net.ConnectivityManager.*
 import android.net.NetworkCapabilities.*
 import android.os.Build
-import android.util.Log
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.raywenderlich.currencyapp.api.RetrofitInstance
-import com.raywenderlich.currencyapp.di.CurrencyApplication
 import com.raywenderlich.currencyapp.model.NationalRateListResponse
 import com.raywenderlich.currencyapp.model.Rate
 import com.raywenderlich.currencyapp.utils.*
@@ -50,27 +45,25 @@ class MainViewModel @Inject constructor(
             initialCodesJson,
             object : TypeToken<MutableMap<Int, Boolean>>() {}.type
         )
+
     // Codes ordered properly. Main field, where we manage order of codes
     private val codesListDefaultJson = Gson().toJson(mutableListOf<Int>())
     private val codesListJson = sp.getString("CodesList", codesListDefaultJson)
     private val codesList: MutableList<Int> =
         Gson().fromJson(
             codesListJson,
-            object : TypeToken<MutableList<Int>>() {}.type)
+            object : TypeToken<MutableList<Int>>() {}.type
+        )
 
     var todaysResponseBodyOrdered = mutableListOf<Rate>()
 
-    private val initiallyVisibleCurrenciesCodes = listOf<Int>(Codes.EUR, Codes.RUB, Codes.USD)
-    val newVisibleCurrenciesCodes = mutableListOf<Int>()
-
     var initiallyVisibleCurrencies = mutableListOf<Rate>()
-    val modifyedCurrencies = mutableListOf<Rate>()
+    val modifyedRatesState = mutableListOf<Rate>()
+    val modifyedRatesOrder = mutableListOf<Rate>()
 
     val toastMessage = MutableLiveData<String>()
 
     init {
-        //if (sp.all.isEmpty()) Log.e("SPYura", "From init: SP is empty")
-        //else Log.e("SPYura", "From init: SP contains something")
         getCurrencies()
     }
 
@@ -148,7 +141,7 @@ class MainViewModel @Inject constructor(
                 // 1. Получаем список всех валют
                 todayResponseBody = todayResponse.body() ?: todayResponseBody
                 // 2. Создаём список кодов всех полученных валют в виде мапы.
-                writeInitialCodes(todayResponseBody.rates)
+                writeInitialCodesIfEmpty(todayResponseBody.rates)
                 return true
             }
             !todayResponse.isSuccessful -> {
@@ -226,7 +219,7 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    private fun writeInitialCodes(responseRates: List<Rate>) {
+    private fun writeInitialCodesIfEmpty(responseRates: List<Rate>) {
         // When app is launched first time, we capture order of rates by their codes
         // and save to SharedPreferences. To place rates in future according
         // the initial order
@@ -249,10 +242,31 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    private fun writeInitialCodes(responseRates: List<Rate>) {
+        initialCodes.clear()
+        codesList.clear()
+        responseRates.forEach {
+            initialCodes.put(
+                it.code,
+                it.isChecked
+            )
+            codesList.add(it.code)
+        }
+        val initialCodesJson = Gson().toJson(initialCodes)
+        spEditor.putString("InitialCodes", initialCodesJson).apply()
+        val codesJson = Gson().toJson(codesList)
+        spEditor.putString("CodesList", codesJson).apply()
+    }
+
     fun mergeChangesToVisibleCurrencies() {
         // Change list for displaying in settings fragment
-        todaysResponseBodyOrdered.changeState(modifyedCurrencies)
-        for (rate in modifyedCurrencies) {
+        todaysResponseBodyOrdered.clear()
+        modifyedRatesOrder.forEach { todaysResponseBodyOrdered.add(it) }
+        todaysResponseBodyOrdered.changeState(modifyedRatesState)
+
+        writeInitialCodes(todaysResponseBodyOrdered)
+
+        for (rate in modifyedRatesState) {
             when {
                 rate.isChecked -> {
                     if (!initiallyVisibleCurrencies.getAllCodes().contains(rate.code))
@@ -267,13 +281,8 @@ class MainViewModel @Inject constructor(
         toastMessage.postValue("Сохранено")
         // Sort rates according to initial codes order
         currencies.postValue(Resource.Success(sortVisibleCurrencies(initiallyVisibleCurrencies)))
-        modifyedCurrencies.clear()
-        // Save new states in sp
-        val _initialCodesJson = Gson().toJson(changedInitialCodes())
-        spEditor.putString("InitialCodes", _initialCodesJson).apply()
-        //Log.e("SPYura", "From merge: SP contains ${sp.getString("InitialCodes", "123")}")
-        //if (sp.all.isEmpty()) Log.e("SPYura", "From merge: SP is empty")
-        //else Log.e("SPYura", "From merge: SP contains something")
+        modifyedRatesState.clear()
+        modifyedRatesOrder.clear()
     }
 
     private fun sortVisibleCurrencies(initiallyVisibleCurrencies: List<Rate>): List<Rate> {
@@ -288,21 +297,5 @@ class MainViewModel @Inject constructor(
             }
         }
         return initiallyVisibleCurrenciesSorted
-    }
-
-    private fun changedInitialCodes (): MutableMap<Int, Boolean> {
-        val _initialCodes = mutableMapOf<Int, Boolean>()
-        for (pair in initialCodes) {
-            _initialCodes[pair.key] = false
-        }
-        for (rate in initiallyVisibleCurrencies) {
-            for (pair in _initialCodes) {
-                if (rate.code == pair.key) {
-                    _initialCodes[pair.key] = true
-                    break
-                }
-            }
-        }
-        return _initialCodes
     }
 }
