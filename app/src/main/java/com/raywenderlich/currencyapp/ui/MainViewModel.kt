@@ -285,7 +285,7 @@ class MainViewModel @Inject constructor(
         modifyedRatesOrder.clear()
     }
 
-    private fun sortVisibleCurrencies(initiallyVisibleCurrencies: List<Rate>): List<Rate> {
+    private fun sortVisibleCurrencies(initiallyVisibleCurrencies: List<Rate>): MutableList<Rate> {
         val initiallyVisibleCurrenciesSorted = mutableListOf<Rate>()
 
         for (code in codesList) {

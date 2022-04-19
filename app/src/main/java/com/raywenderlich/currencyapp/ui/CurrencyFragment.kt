@@ -1,14 +1,13 @@
 package com.raywenderlich.currencyapp.ui
 
 import android.os.Bundle
-import android.util.Log
+import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import androidx.core.os.HandlerCompat.postDelayed
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -20,8 +19,6 @@ import com.raywenderlich.currencyapp.databinding.FragmentCurrencyBinding
 import com.raywenderlich.currencyapp.utils.AutoClearedValue
 import com.raywenderlich.currencyapp.utils.Resource
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.*
@@ -58,7 +55,7 @@ class CurrencyFragment : Fragment() {
                 is Resource.Success -> {
                     hideProgressBar()
                     response.data?.let { currensiesResponse ->
-                        currencyAdapter.responseList = currensiesResponse
+                        currencyAdapter.addPlaceHolderAndSubmitList(currensiesResponse)
                         currencyAdapter.notifyDataSetChanged()
                     }
                 }
