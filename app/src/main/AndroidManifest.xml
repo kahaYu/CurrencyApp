@@ -12,7 +12,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.CurrencyApp"
-        android:name=".di.CurrencyApplication">
+        android:name=".di.CurrencyApplication"
+        android:screenOrientation="portrait">
         <activity
             android:name=".ui.MainActivity"
             android:exported="true" >

@@ -1,10 +1,14 @@
 package com.raywenderlich.currencyapp.utils
 
 import android.app.Activity
+import android.app.Application
+import android.content.Context
 import android.os.Build
+import android.view.MotionEvent
 import android.view.View
 import android.view.WindowInsets
 import android.view.WindowInsetsController
+import android.widget.ScrollView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
@@ -41,6 +45,58 @@ class AutoClearedValue<T : Any>(val fragment: Fragment) : ReadWriteProperty<Frag
         _value = value
     }
 }
+
+/*class CustomScrollView(context: Context): ScrollView(context) {
+
+    val
+
+    override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
+        *//*
+         * This method JUST determines whether we want to intercept the motion.
+         * If we return true, onTouchEvent will be called and we do the actual
+         * scrolling there.
+         *//*
+        return when (ev.actionMasked) {
+            // Always handle the case of the touch gesture being complete.
+            MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> {
+                // Release the scroll.
+                mIsScrolling = false
+                false // Do not intercept touch event, let the child handle it
+            }
+            MotionEvent.ACTION_MOVE -> {
+                if (mIsScrolling) {
+                    // We're currently scrolling, so yes, intercept the
+                    // touch event!
+                    true
+                } else {
+
+                    // If the user has dragged their finger horizontally more than
+                    // the touch slop, start the scroll
+
+                    // left as an exercise for the reader
+                    val xDiff: Int = calculateDistanceX(ev)
+
+                    // Touch slop should be calculated using ViewConfiguration
+                    // constants.
+                    if (xDiff > mTouchSlop) {
+                        // Start scrolling!
+                        mIsScrolling = true
+                        true
+                    } else {
+                        false
+                    }
+                }
+            }
+                ...
+            else -> {
+                // In general, we don't want to intercept touch events. They should be
+                // handled by the child view.
+                false
+            }
+        }
+    }
+
+}*/
 
 fun Activity.hideSystemUI() {
 

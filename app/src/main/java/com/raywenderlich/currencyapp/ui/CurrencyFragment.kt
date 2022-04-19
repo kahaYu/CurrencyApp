@@ -1,14 +1,13 @@
 package com.raywenderlich.currencyapp.ui
 
+import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -20,8 +19,6 @@ import com.raywenderlich.currencyapp.databinding.FragmentCurrencyBinding
 import com.raywenderlich.currencyapp.utils.AutoClearedValue
 import com.raywenderlich.currencyapp.utils.Resource
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.*
@@ -52,6 +49,9 @@ class CurrencyFragment : Fragment() {
         binding.vm = vm
 
         setupRecyclerView()
+        // Повесить скролл листенер и в зависимости от направления скролла переватывать ивент
+
+
 
         vm.currencies.observe(viewLifecycleOwner, Observer { response ->
             when (response) {
@@ -60,6 +60,7 @@ class CurrencyFragment : Fragment() {
                     response.data?.let { currensiesResponse ->
                         currencyAdapter.responseList = currensiesResponse
                         currencyAdapter.notifyDataSetChanged()
+                        updateScrollView()
                     }
                 }
                 is Resource.Error -> {
@@ -114,6 +115,20 @@ class CurrencyFragment : Fragment() {
             layoutManager = LinearLayoutManager(activity)
             //addOnScrollListener(this@BreakingNewsFragment.scrollListener)
             setHasFixedSize(true) // Accelerate work of rv
+        }
+    }
+
+    private fun updateScrollView() {
+        val screenHeight = resources.displayMetrics.run { heightPixels / density }
+        val recyclerViewHeight = 48 * (currencyAdapter.responseList?.size ?: 0)
+        val placeHolderHeight =
+            if (recyclerViewHeight < screenHeight.toInt() - 72 - 24) // Check if RV occupy all visible area
+            screenHeight - recyclerViewHeight - 72 - 24
+            else 0
+        binding.bottomPlaceholder.layoutParams.height = placeHolderHeight.toInt() * resources.displayMetrics.density.toInt()
+
+        binding.scrollView.post {
+            binding.scrollView.scrollTo(0, binding.recyclerView.top)
         }
     }
 }
