@@ -4,6 +4,8 @@ import android.app.Activity
 import android.app.Application
 import android.content.Context
 import android.os.Build
+import android.util.AttributeSet
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowInsets
@@ -13,8 +15,12 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.raywenderlich.currencyapp.model.Rate
+import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.qualifiers.ApplicationContext
+import org.w3c.dom.Attr
 import java.text.SimpleDateFormat
 import java.util.*
+import javax.inject.Inject
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
@@ -46,57 +52,59 @@ class AutoClearedValue<T : Any>(val fragment: Fragment) : ReadWriteProperty<Frag
     }
 }
 
-/*class CustomScrollView(context: Context): ScrollView(context) {
+interface Transmitter
 
-    val
+@AndroidEntryPoint
+class CustomScrollView @Inject constructor( context: Context, attr: AttributeSet) : ScrollView(context, attr) {
 
-    override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
-        *//*
-         * This method JUST determines whether we want to intercept the motion.
-         * If we return true, onTouchEvent will be called and we do the actual
-         * scrolling there.
-         *//*
-        return when (ev.actionMasked) {
-            // Always handle the case of the touch gesture being complete.
-            MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> {
-                // Release the scroll.
-                mIsScrolling = false
-                false // Do not intercept touch event, let the child handle it
-            }
-            MotionEvent.ACTION_MOVE -> {
-                if (mIsScrolling) {
-                    // We're currently scrolling, so yes, intercept the
-                    // touch event!
-                    true
-                } else {
 
-                    // If the user has dragged their finger horizontally more than
-                    // the touch slop, start the scroll
+    //override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
+    //    return true
+    //}
+}
+//This method JUST determines whether we want to intercept the motion.
+//If we return true, onTouchEvent will be called and we do the actual
+//scrolling there.
 
-                    // left as an exercise for the reader
-                    val xDiff: Int = calculateDistanceX(ev)
+//return when (ev.actionMasked) {
+//    // Always handle the case of the touch gesture being complete.
+//    MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> {
+//        // Release the scroll.
+//        mIsScrolling = false
+//        false // Do not intercept touch event, let the child handle it
+//    }
+//    MotionEvent.ACTION_MOVE -> {
+//        if (mIsScrolling) {
+//            // We're currently scrolling, so yes, intercept the
+//            // touch event!
+//            true
+//        } else {
+//
+//            // If the user has dragged their finger horizontally more than
+//            // the touch slop, start the scroll
+//
+//            // left as an exercise for the reader
+//            val xDiff: Int = calculateDistanceX(ev)
+//
+//            // Touch slop should be calculated using ViewConfiguration
+//            // constants.
+//            if (xDiff > mTouchSlop) {
+//                // Start scrolling!
+//                mIsScrolling = true
+//                true
+//            } else {
+//                false
+//            }
+//        }
+//    }
+//        //...
+//    else -> {
+//        // In general, we don't want to intercept touch events. They should be
+//        // handled by the child view.
+//        false
+//    }
+//}
 
-                    // Touch slop should be calculated using ViewConfiguration
-                    // constants.
-                    if (xDiff > mTouchSlop) {
-                        // Start scrolling!
-                        mIsScrolling = true
-                        true
-                    } else {
-                        false
-                    }
-                }
-            }
-                ...
-            else -> {
-                // In general, we don't want to intercept touch events. They should be
-                // handled by the child view.
-                false
-            }
-        }
-    }
-
-}*/
 
 fun Activity.hideSystemUI() {
 
@@ -174,6 +182,7 @@ fun MutableList<Rate>.getCurrency(code: Int): Rate? {
     }
     return null
 }
+
 fun MutableList<Rate>.getCurrencies(codes: List<Int>): List<Rate?> {
     val listRate = mutableListOf<Rate>()
     for (rate in this) {
@@ -187,6 +196,7 @@ fun MutableList<Rate>.getCurrencies(codes: List<Int>): List<Rate?> {
     }
     return listRate
 }
+
 fun MutableList<Rate>.getAllCodes(): List<Int?> {
     val listCodes = mutableListOf<Int>()
     for (rate in this) {
@@ -194,6 +204,7 @@ fun MutableList<Rate>.getAllCodes(): List<Int?> {
     }
     return listCodes
 }
+
 fun MutableList<Rate>.changeState(codes: List<Int>, state: Boolean) {
     for (rate in this) {
         for (code in codes) {
@@ -204,6 +215,7 @@ fun MutableList<Rate>.changeState(codes: List<Int>, state: Boolean) {
         }
     }
 }
+
 fun MutableList<Rate>.changeState(rates: List<Rate>) {
     for (rate in this) {
         for (currency in rates) {
@@ -214,6 +226,7 @@ fun MutableList<Rate>.changeState(rates: List<Rate>) {
         }
     }
 }
+
 fun MutableList<Rate>.changeState(code: Int, state: Boolean) {
     for (rate in this) {
         if (rate.code == code) {
@@ -222,24 +235,26 @@ fun MutableList<Rate>.changeState(code: Int, state: Boolean) {
         }
     }
 }
+
 fun MutableList<Rate>.changeState(codes: Map<Int, Boolean>) {
     for (rate in this) {
         for (currency in codes)
-        if (rate.code == currency.key) {
-            rate.isChecked = currency.value
-            break
-        }
+            if (rate.code == currency.key) {
+                rate.isChecked = currency.value
+                break
+            }
     }
 }
+
 fun MutableList<Rate>.removeRateAtCode(code: Int) {
     var shouldRemove = false
     var rateForRemove: Rate? = null
     for (rate in this) {
-       if (rate.code == code) {
-           shouldRemove = true
-           rateForRemove = rate
-           break
-       }
+        if (rate.code == code) {
+            shouldRemove = true
+            rateForRemove = rate
+            break
+        }
     }
     if (shouldRemove) this.remove(rateForRemove)
 }
