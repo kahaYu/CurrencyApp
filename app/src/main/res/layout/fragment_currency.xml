@@ -19,15 +19,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <ProgressBar
-            android:id="@+id/progressBar"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
         <TextView
             android:id="@+id/tvHeader"
             android:layout_width="0dp"
@@ -38,7 +29,7 @@
             android:textColor="@color/white"
             android:textSize="@dimen/header"
             android:textStyle="bold"
-            app:layout_constraintBottom_toTopOf="@+id/tvHeaderSmall"
+            app:layout_constraintBottom_toTopOf="@+id/placeHolder"
             app:layout_constraintEnd_toStartOf="@id/btSettings"
             app:layout_constraintStart_toEndOf="@id/btBack"
             app:layout_constraintTop_toTopOf="parent" />
@@ -81,8 +72,8 @@
             android:background="@color/teal_700_transparent"
             android:gravity="center"
             android:text="@string/data"
-            android:textSize="14sp"
             android:textColor="@color/black"
+            android:textSize="14sp"
             app:layout_constraintEnd_toStartOf="@+id/tvDateToday"
             app:layout_constraintTop_toBottomOf="@+id/tvHeader" />
 
@@ -90,13 +81,13 @@
             android:id="@+id/tvDateToday"
             android:layout_width="80dp"
             android:layout_height="20dp"
-            android:paddingTop="4dp"
             android:background="@color/teal_700_transparent"
-            android:gravity="center_horizontal"
             android:foregroundGravity="bottom"
+            android:gravity="center_horizontal"
+            android:paddingTop="4dp"
+            android:text="@{vm.dateToday}"
             android:textColor="@color/black"
             android:textSize="14sp"
-            android:text="@{vm.dateToday}"
             app:layout_constraintEnd_toStartOf="@+id/tvDateTomorrow"
             app:layout_constraintTop_toBottomOf="@+id/tvHeader" />
 
@@ -106,9 +97,9 @@
             android:layout_height="12dp"
             android:background="@color/teal_700_transparent"
             android:gravity="center"
+            android:paddingBottom="2dp"
             android:text="@string/segonia"
             android:textSize="8sp"
-            android:paddingBottom="2dp"
             app:layout_constraintEnd_toStartOf="@+id/tvDateTomorrow"
             app:layout_constraintTop_toBottomOf="@+id/tvDateToday" />
 
@@ -116,13 +107,13 @@
             android:id="@+id/tvDateTomorrow"
             android:layout_width="80dp"
             android:layout_height="20dp"
-            android:paddingTop="4dp"
             android:background="@color/teal_700_transparent"
-            android:gravity="center_horizontal"
             android:foregroundGravity="bottom"
+            android:gravity="center_horizontal"
+            android:paddingTop="4dp"
+            android:text="@{vm.dateTomorrow}"
             android:textColor="@color/black"
             android:textSize="14sp"
-            android:text="@{vm.dateTomorrow}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvHeader" />
 
@@ -132,60 +123,40 @@
             android:layout_height="12dp"
             android:background="@color/teal_700_transparent"
             android:gravity="center"
-            android:textSize="8sp"
             android:paddingBottom="2dp"
             android:text="@{vm.wordYesterdayOrTomorrow}"
+            android:textSize="8sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvDateTomorrow" />
 
-        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        <uz.jamshid.library.IGRefreshLayout
             android:id="@+id/scrollView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            android:background="@color/transparent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvDateWord"
-            tools:context=".ui.MainActivity">
+            app:offsetTop="120"
+            tools:context=".ui.MainActivity"
+            app:customBar="true">
 
-            <!--<androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/constraintLayout"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerView"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical">-->
+                android:layout_height="match_parent" />
 
-                <!--<ProgressBar
-                    android:id="@+id/updateProgressBar"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginBottom="16dp"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"/>
+        </uz.jamshid.library.IGRefreshLayout>
 
-                <FrameLayout
-                    android:id="@+id/upperPlaceholder"
-                    android:layout_width="match_parent"
-                    android:layout_height="300dp"
-                    app:layout_constraintTop_toTopOf="parent"/>-->
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recyclerView"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                     />
-                <!--<FrameLayout
-                    android:id="@+id/bottomPlaceholder"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    app:layout_constraintTop_toBottomOf="@+id/recyclerView"/>
-
-            </androidx.constraintlayout.widget.ConstraintLayout>-->
-
-
-        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-
-
-
+        <com.raywenderlich.currencyapp.utils.CustomCircleProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:context=".ui.MainActivity" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </layout>

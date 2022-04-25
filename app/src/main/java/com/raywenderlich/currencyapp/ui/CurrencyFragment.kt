@@ -1,13 +1,10 @@
 package com.raywenderlich.currencyapp.ui
 
-import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.RequiresApi
-import androidx.core.view.isVisible
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
@@ -18,14 +15,15 @@ import com.google.android.material.snackbar.Snackbar
 import com.raywenderlich.currencyapp.R
 import com.raywenderlich.currencyapp.adapters.CurrencyAdapter
 import com.raywenderlich.currencyapp.databinding.FragmentCurrencyBinding
+
 import com.raywenderlich.currencyapp.utils.AutoClearedValue
+import com.raywenderlich.currencyapp.utils.CustomCircleProgressBar
 import com.raywenderlich.currencyapp.utils.Resource
-import com.raywenderlich.currencyapp.utils.Transmitter
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import uz.jamshid.library.progress_bar.CircleProgressBar
 import java.util.*
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class CurrencyFragment: Fragment() {
@@ -52,14 +50,15 @@ class CurrencyFragment: Fragment() {
         binding.lifecycleOwner = this
         binding.vm = vm
 
+        setupScrollView()
         setupRecyclerView()
 
         vm.currencies.observe(viewLifecycleOwner, Observer { response ->
             when (response) {
                 is Resource.Success -> {
                     hideProgressBar()
-                    response.data?.let { currensiesResponse ->
-                        currencyAdapter.responseList = currensiesResponse
+                    response.data?.let { currenciesResponse ->
+                        currencyAdapter.responseList = currenciesResponse
                         currencyAdapter.notifyDataSetChanged()
                         //updateScrollView()
                     }
@@ -118,18 +117,15 @@ class CurrencyFragment: Fragment() {
         }
     }
 
-    //private fun updateScrollView() {
-    //    val screenHeight = resources.displayMetrics.run { heightPixels / density }
-    //    val recyclerViewHeight = 48 * (currencyAdapter.responseList?.size ?: 0)
-    //    val placeHolderHeight =
-    //        if (recyclerViewHeight < screenHeight.toInt() - 72 - 24) // Check if RV occupy all visible area
-    //        screenHeight - recyclerViewHeight - 72 - 24
-    //        else 0
-    //    binding.bottomPlaceholder.layoutParams.height = placeHolderHeight.toInt() * resources.displayMetrics.density.toInt()
-//
-    //    binding.scrollView.post {
-    //        binding.scrollView.scrollTo(0, binding.recyclerView.top)
-    //    }
-    //    binding.scrollView.isSmoothScrollingEnabled = true
-    //}
+    private fun setupScrollView() {
+        binding.progressBar.start() // Start main progress bar
+        val circleProgressBar = CustomCircleProgressBar(requireActivity())
+        binding.scrollView.apply {
+            setCustomBar(circleProgressBar)
+            setRefreshListener {
+                handler.postDelayed({ this.setRefreshing(false) }, 2000L)
+            }
+        }
+
+    }
 }

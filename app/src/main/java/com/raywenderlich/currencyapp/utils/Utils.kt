@@ -1,28 +1,163 @@
 package com.raywenderlich.currencyapp.utils
 
+import android.animation.Animator
+import android.animation.ValueAnimator
 import android.app.Activity
-import android.app.Application
 import android.content.Context
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.RectF
 import android.os.Build
 import android.util.AttributeSet
-import android.util.Log
-import android.view.MotionEvent
-import android.view.View
-import android.view.WindowInsets
-import android.view.WindowInsetsController
-import android.widget.ScrollView
+import android.view.*
+import android.view.animation.*
+import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.customview.widget.ViewDragHelper
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
+import com.raywenderlich.currencyapp.R
 import com.raywenderlich.currencyapp.model.Rate
-import dagger.hilt.android.AndroidEntryPoint
-import dagger.hilt.android.qualifiers.ApplicationContext
-import org.w3c.dom.Attr
+import uz.jamshid.library.IGRefreshLayout
+import uz.jamshid.library.progress_bar.BaseProgressBar
+import uz.jamshid.library.progress_bar.CircleProgressBar
+import java.lang.Exception
 import java.text.SimpleDateFormat
 import java.util.*
-import javax.inject.Inject
+import kotlin.math.*
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
+
+class CustomCircleProgressBar @JvmOverloads constructor(
+    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+) : BaseProgressBar(context, attrs, defStyleAttr){
+
+    private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+
+    private var backColor = resources.getColor(R.color.transparent)
+    private var frontColor = resources.getColor(R.color.teal_700)
+    private val backPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+
+    private var borderWidth = dp2px(4).toFloat()
+
+    private var size = dp2px(80)
+    private var mIndeterminateSweep: Float = 0f
+    private var mStartAngle: Float = 0f
+
+    private var mRect: RectF? = null
+    private var progressAnimator: ValueAnimator? = null
+
+    init {
+        setParent(IGRefreshLayout(context))
+        paint.color = frontColor
+        paint.style = Paint.Style.STROKE
+        paint.strokeWidth = borderWidth
+        backPaint.color = backColor
+        backPaint.style = Paint.Style.STROKE
+        backPaint.strokeWidth = borderWidth
+
+        mRect = RectF()
+        mIndeterminateSweep = 185f
+    }
+
+    fun setBorderWidth(width: Int){
+        paint.strokeWidth = dp2px(width).toFloat()
+        backPaint.strokeWidth = dp2px(width).toFloat()
+    }
+
+    fun setColors(backColor: Int, frontColor: Int){
+        paint.color = frontColor
+        backPaint.color = backColor
+    }
+
+    fun setSize(px: Int){
+        size = (px * context.resources.displayMetrics.density).toInt()
+    }
+
+    override fun onDraw(canvas: Canvas?) {
+        super.onDraw(canvas)
+        mRect?.apply {
+            left = ((width - size/2)/2).toFloat()
+            top = mParent.DRAG_MAX_DISTANCE / 3f
+            right = mRect?.left!! + size/2
+            bottom = mRect?.top!! + size/2
+        }
+
+        canvas?.drawArc(mRect!!, 270f, 360f, false, backPaint)
+
+        if(isLoading)
+            canvas?.drawArc(mRect!!, mStartAngle, mIndeterminateSweep, false, paint)
+        else
+            drawProgress(canvas!!)
+    }
+
+
+    private fun drawProgress(canvas: Canvas){
+        canvas.drawArc(mRect!!, 270f, mPercent*3.6f, false, paint)
+    }
+
+    override fun setParent(parent: IGRefreshLayout) {
+        mParent = parent
+    }
+
+    override fun setPercent(percent: Float) {
+        mPercent = if (percent >= 100f) 100f else percent
+        invalidate()
+    }
+
+    override fun start() {
+        isLoading = true
+        resetAnimation()
+    }
+
+    override fun stop() {
+        stopAnimation()
+    }
+
+    private fun resetAnimation(){
+        if(progressAnimator != null && progressAnimator!!.isRunning)
+            progressAnimator?.cancel()
+
+        progressAnimator = ValueAnimator.ofFloat(0f, 360f)
+        progressAnimator?.duration = 500
+        progressAnimator?.interpolator = LinearInterpolator()
+        progressAnimator?.addUpdateListener {
+            mStartAngle = it.animatedValue as Float
+            invalidate()
+        }
+        progressAnimator?.start()
+        progressAnimator?.addListener(object : Animator.AnimatorListener{
+            override fun onAnimationRepeat(p0: Animator?) {
+
+            }
+
+            override fun onAnimationEnd(p0: Animator?) {
+                resetAnimation()
+            }
+
+            override fun onAnimationCancel(p0: Animator?) {
+
+            }
+
+            override fun onAnimationStart(p0: Animator?) {
+
+            }
+
+        })
+    }
+
+    private fun stopAnimation(){
+        isLoading = false
+
+        if(progressAnimator != null) {
+            progressAnimator?.cancel()
+            progressAnimator?.removeAllListeners()
+            progressAnimator = null
+        }
+    }
+}
 
 class AutoClearedValue<T : Any>(val fragment: Fragment) : ReadWriteProperty<Fragment, T> {
     private var _value: T? = null
@@ -51,59 +186,6 @@ class AutoClearedValue<T : Any>(val fragment: Fragment) : ReadWriteProperty<Frag
         _value = value
     }
 }
-
-interface Transmitter
-
-@AndroidEntryPoint
-class CustomScrollView @Inject constructor( context: Context, attr: AttributeSet) : ScrollView(context, attr) {
-
-
-    //override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
-    //    return true
-    //}
-}
-//This method JUST determines whether we want to intercept the motion.
-//If we return true, onTouchEvent will be called and we do the actual
-//scrolling there.
-
-//return when (ev.actionMasked) {
-//    // Always handle the case of the touch gesture being complete.
-//    MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> {
-//        // Release the scroll.
-//        mIsScrolling = false
-//        false // Do not intercept touch event, let the child handle it
-//    }
-//    MotionEvent.ACTION_MOVE -> {
-//        if (mIsScrolling) {
-//            // We're currently scrolling, so yes, intercept the
-//            // touch event!
-//            true
-//        } else {
-//
-//            // If the user has dragged their finger horizontally more than
-//            // the touch slop, start the scroll
-//
-//            // left as an exercise for the reader
-//            val xDiff: Int = calculateDistanceX(ev)
-//
-//            // Touch slop should be calculated using ViewConfiguration
-//            // constants.
-//            if (xDiff > mTouchSlop) {
-//                // Start scrolling!
-//                mIsScrolling = true
-//                true
-//            } else {
-//                false
-//            }
-//        }
-//    }
-//        //...
-//    else -> {
-//        // In general, we don't want to intercept touch events. They should be
-//        // handled by the child view.
-//        false
-//    }
-//}
 
 
 fun Activity.hideSystemUI() {

@@ -4,7 +4,6 @@ import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import android.net.ConnectivityManager
-import com.raywenderlich.currencyapp.utils.Transmitter
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

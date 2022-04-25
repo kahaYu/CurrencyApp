@@ -1,5 +1,6 @@
 package com.raywenderlich.currencyapp.ui
 
+import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -15,6 +16,7 @@ import com.raywenderlich.currencyapp.R
 import com.raywenderlich.currencyapp.databinding.ActivityMainBinding
 import com.raywenderlich.currencyapp.utils.hideSystemUI
 import dagger.hilt.android.AndroidEntryPoint
+import uz.jamshid.library.progress_bar.CircleProgressBar
 import java.util.*
 
 @AndroidEntryPoint
