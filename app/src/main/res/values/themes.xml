@@ -14,4 +14,9 @@
         <item name="android:fitsSystemWindows">true</item>
         <!-- Customize your theme here. -->
     </style>
+
+    <declare-styleable name="IGRefreshLayout">
+        <attr name="offsetTop" format="integer"/>
+        <attr name="customBar" format="boolean"/>
+    </declare-styleable>
 </resources>

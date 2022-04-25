@@ -16,7 +16,6 @@ import com.raywenderlich.currencyapp.R
 import com.raywenderlich.currencyapp.databinding.ActivityMainBinding
 import com.raywenderlich.currencyapp.utils.hideSystemUI
 import dagger.hilt.android.AndroidEntryPoint
-import uz.jamshid.library.progress_bar.CircleProgressBar
 import java.util.*
 
 @AndroidEntryPoint

@@ -17,12 +17,11 @@ import com.raywenderlich.currencyapp.adapters.CurrencyAdapter
 import com.raywenderlich.currencyapp.databinding.FragmentCurrencyBinding
 
 import com.raywenderlich.currencyapp.utils.AutoClearedValue
-import com.raywenderlich.currencyapp.utils.CustomCircleProgressBar
+import com.raywenderlich.currencyapp.ui.customRefreshLayout.CustomCircleProgressBar
 import com.raywenderlich.currencyapp.utils.Resource
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import uz.jamshid.library.progress_bar.CircleProgressBar
 import java.util.*
 
 @AndroidEntryPoint

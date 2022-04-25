@@ -95,5 +95,5 @@ dependencies {
     implementation 'com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.3'
 
     // Swipe and refresh layout
-    implementation 'com.github.Jamshid-M:IGRefreshLayout:1.0.3'
+    //implementation 'com.github.Jamshid-M:IGRefreshLayout:1.0.3'
 }

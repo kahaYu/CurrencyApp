@@ -129,7 +129,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvDateTomorrow" />
 
-        <uz.jamshid.library.IGRefreshLayout
+        <com.raywenderlich.currencyapp.ui.customRefreshLayout.IGRefreshLayout
             android:id="@+id/scrollView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -145,9 +145,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
 
-        </uz.jamshid.library.IGRefreshLayout>
+        </com.raywenderlich.currencyapp.ui.customRefreshLayout.IGRefreshLayout>
 
-        <com.raywenderlich.currencyapp.utils.CustomCircleProgressBar
+        <com.raywenderlich.currencyapp.ui.customRefreshLayout.CustomCircleProgressBar
             android:id="@+id/progressBar"
             android:layout_width="100dp"
             android:layout_height="100dp"
