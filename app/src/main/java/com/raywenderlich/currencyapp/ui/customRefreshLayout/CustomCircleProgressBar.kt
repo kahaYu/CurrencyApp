@@ -10,6 +10,7 @@ import android.util.AttributeSet
 import android.view.animation.LinearInterpolator
 import com.raywenderlich.currencyapp.R
 
+/*
 class CustomCircleProgressBar @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : BaseProgressBar(context, attrs, defStyleAttr){
@@ -137,4 +138,4 @@ class CustomCircleProgressBar @JvmOverloads constructor(
             progressAnimator = null
         }
     }
-}
+}*/

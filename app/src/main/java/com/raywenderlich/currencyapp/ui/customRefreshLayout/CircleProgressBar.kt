@@ -11,6 +11,8 @@ import android.util.AttributeSet
 import android.view.animation.Animation
 import android.view.animation.LinearInterpolator
 import android.view.animation.ScaleAnimation
+import androidx.core.content.ContextCompat
+import com.raywenderlich.currencyapp.R
 
 
 class CircleProgressBar @JvmOverloads constructor(
@@ -19,8 +21,8 @@ class CircleProgressBar @JvmOverloads constructor(
 
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
 
-    private var backColor = Color.LTGRAY
-    private var frontColor = Color.GRAY
+    private var backColor = ContextCompat.getColor(context, R.color.transparent)
+    private var frontColor = ContextCompat.getColor(context, R.color.teal_700)
     private val backPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
     private var borderWidth = dp2px(4).toFloat()
@@ -41,7 +43,7 @@ class CircleProgressBar @JvmOverloads constructor(
         backPaint.strokeWidth = borderWidth
 
         mRect = RectF()
-        mIndeterminateSweep = 85f
+        mIndeterminateSweep = 190f
 
     }
 
@@ -61,12 +63,12 @@ class CircleProgressBar @JvmOverloads constructor(
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
-        mRect?.apply {
-            left = ((width - size/2)/2).toFloat()
-            top = mParent.DRAG_MAX_DISTANCE / 3f
-            right = mRect?.left!! + size/2
-            bottom = mRect?.top!! + size/2
-        }
+            mRect?.apply {
+                left = ((width - size/2)/2).toFloat()
+                top = (mParent?.DRAG_MAX_DISTANCE ?: 120 / 3f).toFloat()
+                right = mRect?.left!! + size/2
+                bottom = mRect?.top!! + size/2
+            }
 
         canvas?.drawArc(mRect!!, 270f, 360f, false, backPaint)
 

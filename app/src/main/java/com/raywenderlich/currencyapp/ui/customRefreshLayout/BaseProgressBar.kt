@@ -8,7 +8,7 @@ abstract class BaseProgressBar @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
 
-    lateinit var mParent: IGRefreshLayout
+    var mParent: IGRefreshLayout? = null
     var mPercent = 0f
     var isLoading = false
 

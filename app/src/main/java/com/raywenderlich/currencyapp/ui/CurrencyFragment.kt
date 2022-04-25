@@ -15,9 +15,9 @@ import com.google.android.material.snackbar.Snackbar
 import com.raywenderlich.currencyapp.R
 import com.raywenderlich.currencyapp.adapters.CurrencyAdapter
 import com.raywenderlich.currencyapp.databinding.FragmentCurrencyBinding
+import com.raywenderlich.currencyapp.ui.customRefreshLayout.CircleProgressBar
 
 import com.raywenderlich.currencyapp.utils.AutoClearedValue
-import com.raywenderlich.currencyapp.ui.customRefreshLayout.CustomCircleProgressBar
 import com.raywenderlich.currencyapp.utils.Resource
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
@@ -118,13 +118,15 @@ class CurrencyFragment: Fragment() {
 
     private fun setupScrollView() {
         binding.progressBar.start() // Start main progress bar
-        val circleProgressBar = CustomCircleProgressBar(requireActivity())
+        //val circleProgressBar = CustomCircleProgressBar(requireActivity())
         binding.scrollView.apply {
-            setCustomBar(circleProgressBar)
+        //    setCustomBar(circleProgressBar)
             setRefreshListener {
                 handler.postDelayed({ this.setRefreshing(false) }, 2000L)
             }
         }
+
+
 
     }
 }
