@@ -13,6 +13,7 @@ import android.view.animation.LinearInterpolator
 import android.view.animation.ScaleAnimation
 import androidx.core.content.ContextCompat
 import com.raywenderlich.currencyapp.R
+import java.lang.NullPointerException
 
 
 class CircleProgressBar @JvmOverloads constructor(
@@ -43,7 +44,7 @@ class CircleProgressBar @JvmOverloads constructor(
         backPaint.strokeWidth = borderWidth
 
         mRect = RectF()
-        mIndeterminateSweep = 190f
+        mIndeterminateSweep = 170f
 
     }
 
@@ -65,7 +66,7 @@ class CircleProgressBar @JvmOverloads constructor(
         super.onDraw(canvas)
             mRect?.apply {
                 left = ((width - size/2)/2).toFloat()
-                top = (mParent?.DRAG_MAX_DISTANCE ?: 120 / 3f).toFloat()
+                    top = mParent?.DRAG_MAX_DISTANCE?.div( 1.5f) ?: 40f
                 right = mRect?.left!! + size/2
                 bottom = mRect?.top!! + size/2
             }

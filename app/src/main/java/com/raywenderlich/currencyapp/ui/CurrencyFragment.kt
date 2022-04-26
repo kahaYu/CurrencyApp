@@ -118,9 +118,7 @@ class CurrencyFragment: Fragment() {
 
     private fun setupScrollView() {
         binding.progressBar.start() // Start main progress bar
-        //val circleProgressBar = CustomCircleProgressBar(requireActivity())
         binding.scrollView.apply {
-        //    setCustomBar(circleProgressBar)
             setRefreshListener {
                 handler.postDelayed({ this.setRefreshing(false) }, 2000L)
             }

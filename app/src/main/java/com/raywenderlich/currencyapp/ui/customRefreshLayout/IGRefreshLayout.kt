@@ -147,8 +147,12 @@ class IGRefreshLayout @JvmOverloads constructor(
 
     override fun onInterceptTouchEvent(ev: MotionEvent?): Boolean {
 
-        if (!isEnabled || canChildScrollUp() || mRefreshing) {
+        if (!isEnabled || canChildScrollUp()) {
             return false
+        }
+        if (mRefreshing) {
+            mIsBeingDragged = true
+            return true
         }
 
         when (ev?.actionMasked) {
@@ -194,11 +198,11 @@ class IGRefreshLayout @JvmOverloads constructor(
             return super.onTouchEvent(ev)
         }
 
-        when (ev?.actionMasked) {
+        when(ev?.actionMasked){
             MotionEvent.ACTION_MOVE -> {
                 val pointerIndex = ev.findPointerIndex(mActivePointerId)
-                if (pointerIndex < 0) {
-                    return false
+                if(pointerIndex < 0){
+                    return true
                 }
                 val y = ev.getY(pointerIndex)
                 val yDiff = y - mInitialMotionY
@@ -210,17 +214,15 @@ class IGRefreshLayout @JvmOverloads constructor(
                 val boundedDragPercent = min(1f, abs(mCurrentDragPercent))
                 val extraOS = abs(scrollTop) - mTotalDragDistance
                 val slingshotDist = mTotalDragDistance.toFloat()
-                val tensionSlingshotPercent =
-                    max(0f, min(extraOS, slingshotDist * 2) / slingshotDist)
-                val tensionPercent =
-                    ((tensionSlingshotPercent / 4) - (tensionSlingshotPercent / 4).pow(2)) * 2f
+                val tensionSlingshotPercent = max(0f, min(extraOS, slingshotDist * 2) / slingshotDist)
+                val tensionPercent = ((tensionSlingshotPercent / 4) - (tensionSlingshotPercent / 4).pow(2))*2f
                 val extraMove = slingshotDist * tensionPercent / 2
                 val targetY = (slingshotDist * boundedDragPercent + extraMove).toInt()
 
-                val offsetScrollTop = scrollTop - (mTotalDragDistance / 2)
-                if (offsetScrollTop > 0) {
-                    mBar.setPercent(200 * offsetScrollTop / mTotalDragDistance)
-                    mCurrentDragPercent = offsetScrollTop / mTotalDragDistance * 2
+                val offsetScrollTop = scrollTop - (mTotalDragDistance/2)
+                if(offsetScrollTop>0) {
+                    mBar.setPercent(200 * offsetScrollTop/mTotalDragDistance)
+                    mCurrentDragPercent = offsetScrollTop/mTotalDragDistance * 2
                 }
                 setTargetOffsetTop(targetY - mCurrentOffsetTop)
             }
@@ -241,16 +243,14 @@ class IGRefreshLayout @JvmOverloads constructor(
                 mIsBeingDragged = false
                 if (overScrollTop > mTotalDragDistance) {
                     setRefreshing(true, true)
-                } else {
+                }else {
                     mRefreshing = false
                     animateOffsetToStartPosition()
                 }
                 mActivePointerId = INVALID_POINTER
                 return false
             }
-
         }
-
         return true
     }
 
@@ -291,7 +291,6 @@ class IGRefreshLayout @JvmOverloads constructor(
         val targetPercent = mFromDragPercent * (1.0f - interpolatedTime)
         val offset = targetTop - mTarget?.top!!
         mCurrentDragPercent = targetPercent
-        mBar.setPercent(100 * mCurrentDragPercent)
         mTarget?.setPadding(
             mTargetPaddingLeft,
             mTargetPaddingTop,
@@ -330,8 +329,10 @@ class IGRefreshLayout @JvmOverloads constructor(
         mAnimateToStartPosition.duration = animationDuration
         mAnimateToStartPosition.interpolator = mDecelerateInterpolator
         mAnimateToStartPosition.setAnimationListener(mToStartListener)
+
         mBar.stop()
         mBar.clearAnimation()
+        mBar.setPercent(0F)
         mBar.startAnimation(mAnimateToStartPosition)
     }
 
@@ -384,7 +385,9 @@ class IGRefreshLayout @JvmOverloads constructor(
     }
 
     private val mToStartListener = object : Animation.AnimationListener {
-        override fun onAnimationStart(animation: Animation) {}
+        override fun onAnimationStart(animation: Animation) {
+            //mBar.stop()
+        }
 
         override fun onAnimationRepeat(animation: Animation) {}
 
