@@ -43,6 +43,7 @@ class SettingsAdapter(
                     )
                 }
                 ivBurger.setOnLongClickListener { _ ->
+                    //itemView.elevation = 20F
                     startDragListener.requestDrag(this@SettingsViewHolder)
                     false
 

@@ -1,5 +1,6 @@
 package com.raywenderlich.currencyapp.ui
 
+import android.graphics.Canvas
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -59,6 +60,7 @@ class SettingsFragment : Fragment() {
         lifecycleScope.launch { // Some delay to let animation of button play
             delay(210L)
             findNavController().navigateUp()
+            vm.isNavigatedFromSettingsFragment = true
         }
     }
 
@@ -72,11 +74,14 @@ class SettingsFragment : Fragment() {
                         or ItemTouchHelper.END,
                 0
             ) {
+
+
                 override fun onMove(
                     recyclerView: RecyclerView,
                     viewHolder: RecyclerView.ViewHolder,
                     target: RecyclerView.ViewHolder
                 ): Boolean {
+
                     val fromPosition = viewHolder.adapterPosition
                     val toPosition = target.adapterPosition
 
@@ -88,6 +93,39 @@ class SettingsFragment : Fragment() {
 
                 override fun isLongPressDragEnabled(): Boolean {
                     return false
+                }
+
+                override fun onChildDraw(
+                    c: Canvas,
+                    recyclerView: RecyclerView,
+                    viewHolder: RecyclerView.ViewHolder,
+                    dX: Float,
+                    dY: Float,
+                    actionState: Int,
+                    isCurrentlyActive: Boolean
+                ) {
+                    super.onChildDraw(
+                        c,
+                        recyclerView,
+                        viewHolder,
+                        dX,
+                        dY,
+                        actionState,
+                        isCurrentlyActive
+                    )
+                    //viewHolder.itemView.elevation = if (isCurrentlyActive) 20F else 0F
+                    if (!vm.shouldRemoveShadow) viewHolder.itemView.elevation =  20F else {
+                        viewHolder.itemView.elevation = 0F
+                        vm.shouldRemoveShadow = false
+                    }
+                }
+
+                override fun clearView(
+                    recyclerView: RecyclerView,
+                    viewHolder: RecyclerView.ViewHolder
+                ) {
+                    super.clearView(recyclerView, viewHolder)
+                    vm.shouldRemoveShadow = true
                 }
 
                 override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {}

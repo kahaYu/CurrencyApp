@@ -1,10 +1,15 @@
 package com.raywenderlich.currencyapp.ui
 
+import android.animation.ObjectAnimator
+import android.animation.ValueAnimator
 import android.content.SharedPreferences
 import android.net.ConnectivityManager
 import android.net.ConnectivityManager.*
 import android.net.NetworkCapabilities.*
 import android.os.Build
+import android.view.View
+import android.view.animation.Animation
+import android.widget.LinearLayout
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -17,6 +22,7 @@ import com.raywenderlich.currencyapp.utils.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.io.IOException
+import java.io.LineNumberReader
 import javax.inject.Inject
 
 @HiltViewModel
@@ -26,6 +32,8 @@ class MainViewModel @Inject constructor(
     val spEditor: SharedPreferences.Editor// Need application to check internet state
 ) : ViewModel() {
 
+    var shouldRemoveShadow: Boolean = false
+    var isNavigatedFromSettingsFragment: Boolean = false
     val currencies = MutableLiveData<Resource<List<Rate>>>()
     var toastShowTime = 0L
 
@@ -63,6 +71,8 @@ class MainViewModel @Inject constructor(
 
     val toastMessage = MutableLiveData<String>()
 
+    var isRefreshing = false
+
     init {
         getCurrencies()
     }
@@ -72,8 +82,9 @@ class MainViewModel @Inject constructor(
     }
 
     private suspend fun safeCurrenciesCall() {
-        currencies.postValue(Resource.Loading())
+        if (!isRefreshing) currencies.postValue(Resource.Loading())
         isTomorrowEmpty = false
+        //todaysResponseBodyOrdered.clear()
         try {
             if (hasInternetConnection()) {
                 if (!currenciesCall()) return
@@ -90,6 +101,7 @@ class MainViewModel @Inject constructor(
                 todaysResponseBodyOrdered.changeState(initialCodes)
                 // 6. Создаём список Н элементов для отображения.
                 // Добавляем в этот список только те элементы от Х, у которых включена видимость.
+                initiallyVisibleCurrencies.clear()
                 for (currency in todaysResponseBodyOrdered) {
                     if (currency.isChecked) initiallyVisibleCurrencies.add(currency)
                 }
@@ -281,8 +293,13 @@ class MainViewModel @Inject constructor(
         toastMessage.postValue("Сохранено")
         // Sort rates according to initial codes order
         currencies.postValue(Resource.Success(sortVisibleCurrencies(initiallyVisibleCurrencies)))
-        modifyedRatesState.clear()
-        modifyedRatesOrder.clear()
+
+        //modifyedRatesOrder.clear()
+        //modifyedRatesState.clear()
+        //todaysResponseBodyOrdered.forEach {
+        //    modifyedRatesOrder.add(it)
+        //    modifyedRatesState.add(it)
+        //}
     }
 
     private fun sortVisibleCurrencies(initiallyVisibleCurrencies: List<Rate>): List<Rate> {
@@ -297,5 +314,22 @@ class MainViewModel @Inject constructor(
             }
         }
         return initiallyVisibleCurrenciesSorted
+    }
+
+    fun startAnimation(view: View) {
+        ObjectAnimator.ofFloat(view, "translationY", 30f).apply {
+            repeatCount = Animation.INFINITE
+            repeatMode = ValueAnimator.REVERSE
+            duration = 1000
+            start()
+        }
+    }
+
+    fun smoothAppearance(view: View, alpha: Float) {
+        view.alpha = 0F
+        ObjectAnimator.ofFloat(view, "alpha", alpha).apply {
+            duration = 1500
+            start()
+        }
     }
 }

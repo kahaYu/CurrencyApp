@@ -3,6 +3,8 @@ package com.raywenderlich.currencyapp.adapters
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.AsyncListDiffer
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.raywenderlich.currencyapp.R
 import com.raywenderlich.currencyapp.databinding.CurrencyItemViewBinding
@@ -11,7 +13,17 @@ import com.raywenderlich.currencyapp.utils.format
 
 class CurrencyAdapter : RecyclerView.Adapter<CurrencyAdapter.CurrencyViewHolder>() {
 
-    var responseList: List<Rate>? = null
+    private val differCallback = object : DiffUtil.ItemCallback<Rate>() {
+        override fun areItemsTheSame(oldItem: Rate, newItem: Rate): Boolean {
+            return oldItem.iso == newItem.iso
+        }
+        override fun areContentsTheSame(oldItem: Rate, newItem: Rate): Boolean {
+            return oldItem == newItem
+        }
+    }
+
+    //var responseList: List<Rate>? = null
+    val differ = AsyncListDiffer(this, differCallback)
 
     class CurrencyViewHolder(itemView: View, val binding: CurrencyItemViewBinding) :
         RecyclerView.ViewHolder(itemView)
@@ -25,16 +37,17 @@ class CurrencyAdapter : RecyclerView.Adapter<CurrencyAdapter.CurrencyViewHolder>
     }
 
     override fun onBindViewHolder(holder: CurrencyViewHolder, position: Int) {
+        val rate = differ.currentList[position]
         holder.binding.apply {
-            tvCurrencyEng.text = responseList?.get(position)?.iso
-            tvCurrencyRus.text = responseList?.get(position)?.name
-            tvCurrencyToday.text = responseList?.get(position)?.rate?.format(4)
-            tvQuantity.text = responseList?.get(position)?.quantity.toString()
-            tvCurrencyTomorrow.text = responseList?.get(position)?.rateTomorrow?.format(4)
+            tvCurrencyEng.text = rate.iso
+            tvCurrencyRus.text = rate.name
+            tvCurrencyToday.text = rate.rate.format(4)
+            tvQuantity.text = rate.quantity.toString()
+            tvCurrencyTomorrow.text = rate.rateTomorrow.format(4)
         }
     }
 
     override fun getItemCount(): Int {
-        return responseList?.size ?: 0
+        return differ.currentList.size ?: 0
     }
 }

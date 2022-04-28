@@ -3,6 +3,6 @@
     <string name="cursy_valiut">Курсы валют</string>
     <string name="data">Дата:</string>
     <string name="nastroyka_valiut">Настройка валют</string>
-    <string name="alfabank">Альфабанк</string>
+    <string name="obnovit">Обновить</string>
     <string name="segonia">Сегодня</string>
 </resources>

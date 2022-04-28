@@ -24,7 +24,7 @@ class IGRefreshLayout @JvmOverloads constructor(
     private val DECELERATE_INTERPOLATION_FACTOR = 2f
 
     var mDecelerateInterpolator: Interpolator? = null
-    private var mTarget: View? = null
+    var mTarget: View? = null
     private var mTargetPaddingTop: Int = 0
     private var mTargetPaddingBottom: Int = 0
     private var mTargetPaddingRight: Int = 0
@@ -58,7 +58,7 @@ class IGRefreshLayout @JvmOverloads constructor(
         setBackgroundColor(Color.WHITE)
 
         setWillNotDraw(false)
-        ViewCompat.setChildrenDrawingOrderEnabled(this, true)
+        //ViewCompat.setChildrenDrawingOrderEnabled(this, true)
     }
 
     private fun setupAttributes(attrs: AttributeSet?) {
@@ -120,7 +120,7 @@ class IGRefreshLayout @JvmOverloads constructor(
             customView?.measure(width, height)
     }
 
-    private fun ensureTarget() {
+    fun ensureTarget() {
         if (mTarget != null)
             return
 
@@ -165,6 +165,7 @@ class IGRefreshLayout @JvmOverloads constructor(
                     return false
                 }
                 mInitialMotionY = initialMotionY
+                mIsBeingDragged = true
             }
             MotionEvent.ACTION_MOVE -> {
                 if (mActivePointerId == INVALID_POINTER) {

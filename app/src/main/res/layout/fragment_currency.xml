@@ -30,7 +30,7 @@
             android:textSize="@dimen/header"
             android:textStyle="bold"
             app:layout_constraintBottom_toTopOf="@+id/placeHolder"
-            app:layout_constraintEnd_toStartOf="@id/btSettings"
+            app:layout_constraintEnd_toStartOf="@id/rightUpperPlaceholder"
             app:layout_constraintStart_toEndOf="@id/btBack"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -45,15 +45,37 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <ImageView
+            android:id="@+id/rightUpperPlaceholder"
+            android:layout_width="56dp"
+            android:layout_height="40dp"
+            android:background="@color/teal_700"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <ImageButton
             android:id="@+id/btSettings"
             android:layout_width="56dp"
             android:layout_height="40dp"
-            android:background="@color/teal_700"
+            android:background="@color/transparent"
             android:onClick="@{() -> fragment.navigateToSettingsFragment()}"
             android:src="@drawable/ic_settings_selector"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            />
+
+        <!--<ImageButton
+            android:id="@+id/btRefresh"
+            android:layout_width="56dp"
+            android:layout_height="40dp"
+            android:background="@color/transparent"
+            android:onClick="@{() -> fragment.refresh()}"
+            android:src="@drawable/ic_refresh"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            />-->
+
+
 
         <TextView
             android:id="@+id/placeHolder"
@@ -136,13 +158,30 @@
             android:background="@color/transparent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvDateWord"
+            app:layout_constraintVertical_bias="1.0"
             tools:context=".ui.MainActivity">
 
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerView"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+
+                <!--<LinearLayout
+                    android:id="@+id/refreshWordArrow"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:orientation="vertical">-->
+
+
+
+                <!--<ImageView
+                    android:id="@+id/ic_arrow_down"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="-12dp"
+                    android:alpha="0.15"
+                    android:rotation="-90"
+                    app:srcCompat="@drawable/ic_arrow_down" />-->
+
+                <!--</LinearLayout>-->
 
         </com.raywenderlich.currencyapp.ui.customRefreshLayout.IGRefreshLayout>
 
