@@ -2,6 +2,7 @@ package com.raywenderlich.currencyapp.ui
 
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
+import android.annotation.SuppressLint
 import android.content.SharedPreferences
 import android.net.ConnectivityManager
 import android.net.ConnectivityManager.*
@@ -29,11 +30,9 @@ import javax.inject.Inject
 class MainViewModel @Inject constructor(
     val connectivityManager: ConnectivityManager,
     private val sp: SharedPreferences,
-    val spEditor: SharedPreferences.Editor// Need application to check internet state
+    val spEditor: SharedPreferences.Editor
 ) : ViewModel() {
 
-    var shouldRemoveShadow: Boolean = false
-    var isNavigatedFromSettingsFragment: Boolean = false
     val currencies = MutableLiveData<Resource<List<Rate>>>()
     var toastShowTime = 0L
 
@@ -73,6 +72,9 @@ class MainViewModel @Inject constructor(
 
     var isRefreshing = false
 
+    var shouldRemoveShadow: Boolean = false
+    var isNavigatedFromSettingsFragment: Boolean = false
+
     init {
         getCurrencies()
     }
@@ -84,7 +86,6 @@ class MainViewModel @Inject constructor(
     private suspend fun safeCurrenciesCall() {
         if (!isRefreshing) currencies.postValue(Resource.Loading())
         isTomorrowEmpty = false
-        //todaysResponseBodyOrdered.clear()
         try {
             if (hasInternetConnection()) {
                 if (!currenciesCall()) return
@@ -94,23 +95,21 @@ class MainViewModel @Inject constructor(
                     if (!yesterdayCurrenciesCall()) return
                 }
                 // We have to reorder rates to correspond initial order saved in sp
-                // 4. Создаём новый список. Располагаем в нём элементы согласно списку кодов
                 todaysResponseBodyOrdered = orderTodaysResponseBody()
                 addTomorrowRatesToItems(todaysResponseBodyOrdered)
-                // 5. Меняем стейт списка Х в соответствие со списком включённых кодов O.
                 todaysResponseBodyOrdered.changeState(initialCodes)
-                // 6. Создаём список Н элементов для отображения.
-                // Добавляем в этот список только те элементы от Х, у которых включена видимость.
                 initiallyVisibleCurrencies.clear()
+
                 for (currency in todaysResponseBodyOrdered) {
                     if (currency.isChecked) initiallyVisibleCurrencies.add(currency)
                 }
+
                 currencies.postValue(Resource.Success(initiallyVisibleCurrencies))
                 dateToday.postValue(getDateTime(Day.TODAY).toString("dd.MM"))
+
                 var dayYesterdayOrTomorrow = if (isTomorrowEmpty) Day.YESTERDAY else Day.TOMORROW
                 dateTomorrow.postValue(getDateTime(dayYesterdayOrTomorrow).toString("dd.MM"))
                 wordYesterdayOrTomorrow.postValue(if (isTomorrowEmpty) "Вчера" else "Завтра")
-
             } else {
                 currencies.postValue(Resource.Error("нет интернет соединения"))
             }
@@ -122,6 +121,7 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    @SuppressLint("ObsoleteSdkInt")
     private fun hasInternetConnection(): Boolean {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val activeNetwork = connectivityManager.activeNetwork ?: return false
@@ -150,9 +150,7 @@ class MainViewModel @Inject constructor(
         val todayResponse = RetrofitInstance.api.getCurrencies()
         when {
             todayResponse.isSuccessful -> {
-                // 1. Получаем список всех валют
                 todayResponseBody = todayResponse.body() ?: todayResponseBody
-                // 2. Создаём список кодов всех полученных валют в виде мапы.
                 writeInitialCodesIfEmpty(todayResponseBody.rates)
                 return true
             }
@@ -173,7 +171,6 @@ class MainViewModel @Inject constructor(
                     tomorrowResponse.body()!!
                 return true
             }
-
             !tomorrowResponse.isSuccessful -> {
                 currencies.postValue(Resource.Error(tomorrowResponse.message()))
                 return false
@@ -186,9 +183,7 @@ class MainViewModel @Inject constructor(
         isTomorrowEmpty = true
         val yesterdayResponse =
             RetrofitInstance.api.getCurrencies(
-                date = getDateTime(Day.YESTERDAY).toString(
-                    "dd.MM.yyyy"
-                )
+                date = getDateTime(Day.YESTERDAY).toString("dd.MM.yyyy")
             )
         when {
             yesterdayResponse.isSuccessful -> {
@@ -196,7 +191,6 @@ class MainViewModel @Inject constructor(
                     yesterdayResponse.body()!!
                 return true
             }
-
             !yesterdayResponse.isSuccessful -> {
                 currencies.postValue(Resource.Error(yesterdayResponse.message()))
                 return false
@@ -245,10 +239,8 @@ class MainViewModel @Inject constructor(
                 )
                 codesList.add(it.code)
             }
-            // 3. Сохраняем мапу кодов в SP
             val initialCodesJson = Gson().toJson(initialCodes)
             spEditor.putString("InitialCodes", initialCodesJson).apply()
-            // 3.1 Сохраняем сисок кодов в SP
             val codesJson = Gson().toJson(codesList)
             spEditor.putString("CodesList", codesJson).apply()
         }
@@ -293,13 +285,6 @@ class MainViewModel @Inject constructor(
         toastMessage.postValue("Сохранено")
         // Sort rates according to initial codes order
         currencies.postValue(Resource.Success(sortVisibleCurrencies(initiallyVisibleCurrencies)))
-
-        //modifyedRatesOrder.clear()
-        //modifyedRatesState.clear()
-        //todaysResponseBodyOrdered.forEach {
-        //    modifyedRatesOrder.add(it)
-        //    modifyedRatesState.add(it)
-        //}
     }
 
     private fun sortVisibleCurrencies(initiallyVisibleCurrencies: List<Rate>): List<Rate> {
@@ -316,7 +301,7 @@ class MainViewModel @Inject constructor(
         return initiallyVisibleCurrenciesSorted
     }
 
-    fun startAnimation(view: View) {
+    fun startArrowAnimation(view: View) {
         ObjectAnimator.ofFloat(view, "translationY", 30f).apply {
             repeatCount = Animation.INFINITE
             repeatMode = ValueAnimator.REVERSE

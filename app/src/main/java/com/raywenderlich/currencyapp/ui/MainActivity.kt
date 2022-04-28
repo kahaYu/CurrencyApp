@@ -41,7 +41,6 @@ class MainActivity : AppCompatActivity() {
     private fun showSafeToast(view: View, text: String) { // Prevent appearance of multiply toasts at once
         if (Calendar.getInstance().timeInMillis >= vm.toastShowTime + 4000L) {
             val snackbar = Snackbar.make(view, text, Snackbar.LENGTH_LONG)
-            //snackbar.view.background = resources.getDrawable(R.drawable.snackbar_background)
             snackbar.show()
             vm.toastShowTime = Calendar.getInstance().timeInMillis
         }

@@ -28,12 +28,12 @@ class AppModule {
 
     @Singleton
     @Provides
-    fun providesSharedPreferences (
+    fun providesSharedPreferences(
         @ApplicationContext context: Context
     ) = context.getSharedPreferences("Settings", Context.MODE_PRIVATE)
 
     @Singleton
     @Provides
-    fun providesEditor (sp: SharedPreferences) = sp.edit()
+    fun providesEditor(sp: SharedPreferences) = sp.edit()
 
 }

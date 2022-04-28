@@ -51,14 +51,11 @@ class IGRefreshLayout @JvmOverloads constructor(
     init {
         mDecelerateInterpolator = DecelerateInterpolator(DECELERATE_INTERPOLATION_FACTOR)
         mTouchSlop = ViewConfiguration.get(context).scaledTouchSlop
-
         setRefreshing(false)
         setupAttributes(attrs)
         mTotalDragDistance = dp2px(DRAG_MAX_DISTANCE)
         setBackgroundColor(Color.WHITE)
-
         setWillNotDraw(false)
-        //ViewCompat.setChildrenDrawingOrderEnabled(this, true)
     }
 
     private fun setupAttributes(attrs: AttributeSet?) {
@@ -199,10 +196,10 @@ class IGRefreshLayout @JvmOverloads constructor(
             return super.onTouchEvent(ev)
         }
 
-        when(ev?.actionMasked){
+        when (ev?.actionMasked) {
             MotionEvent.ACTION_MOVE -> {
                 val pointerIndex = ev.findPointerIndex(mActivePointerId)
-                if(pointerIndex < 0){
+                if (pointerIndex < 0) {
                     return true
                 }
                 val y = ev.getY(pointerIndex)
@@ -215,15 +212,17 @@ class IGRefreshLayout @JvmOverloads constructor(
                 val boundedDragPercent = min(1f, abs(mCurrentDragPercent))
                 val extraOS = abs(scrollTop) - mTotalDragDistance
                 val slingshotDist = mTotalDragDistance.toFloat()
-                val tensionSlingshotPercent = max(0f, min(extraOS, slingshotDist * 2) / slingshotDist)
-                val tensionPercent = ((tensionSlingshotPercent / 4) - (tensionSlingshotPercent / 4).pow(2))*2f
+                val tensionSlingshotPercent =
+                    max(0f, min(extraOS, slingshotDist * 2) / slingshotDist)
+                val tensionPercent =
+                    ((tensionSlingshotPercent / 4) - (tensionSlingshotPercent / 4).pow(2)) * 2f
                 val extraMove = slingshotDist * tensionPercent / 2
                 val targetY = (slingshotDist * boundedDragPercent + extraMove).toInt()
 
-                val offsetScrollTop = scrollTop - (mTotalDragDistance/2)
-                if(offsetScrollTop>0) {
-                    mBar.setPercent(200 * offsetScrollTop/mTotalDragDistance)
-                    mCurrentDragPercent = offsetScrollTop/mTotalDragDistance * 2
+                val offsetScrollTop = scrollTop - (mTotalDragDistance / 2)
+                if (offsetScrollTop > 0) {
+                    mBar.setPercent(200 * offsetScrollTop / mTotalDragDistance)
+                    mCurrentDragPercent = offsetScrollTop / mTotalDragDistance * 2
                 }
                 setTargetOffsetTop(targetY - mCurrentOffsetTop)
             }
@@ -244,7 +243,7 @@ class IGRefreshLayout @JvmOverloads constructor(
                 mIsBeingDragged = false
                 if (overScrollTop > mTotalDragDistance) {
                     setRefreshing(true, true)
-                }else {
+                } else {
                     mRefreshing = false
                     animateOffsetToStartPosition()
                 }
@@ -387,7 +386,6 @@ class IGRefreshLayout @JvmOverloads constructor(
 
     private val mToStartListener = object : Animation.AnimationListener {
         override fun onAnimationStart(animation: Animation) {
-            //mBar.stop()
         }
 
         override fun onAnimationRepeat(animation: Animation) {}

@@ -47,7 +47,6 @@ class SettingsFragment : Fragment() {
         binding.vm = vm
 
         setupRecyclerView()
-
     }
 
     override fun onDestroy() {
@@ -74,8 +73,6 @@ class SettingsFragment : Fragment() {
                         or ItemTouchHelper.END,
                 0
             ) {
-
-
                 override fun onMove(
                     recyclerView: RecyclerView,
                     viewHolder: RecyclerView.ViewHolder,
@@ -113,8 +110,7 @@ class SettingsFragment : Fragment() {
                         actionState,
                         isCurrentlyActive
                     )
-                    //viewHolder.itemView.elevation = if (isCurrentlyActive) 20F else 0F
-                    if (!vm.shouldRemoveShadow) viewHolder.itemView.elevation =  20F else {
+                    if (!vm.shouldRemoveShadow) viewHolder.itemView.elevation = 20F else {
                         viewHolder.itemView.elevation = 0F
                         vm.shouldRemoveShadow = false
                     }
@@ -136,7 +132,6 @@ class SettingsFragment : Fragment() {
 
         val onSwitchBoxListener = object : SettingsAdapter.OnSwitchBoxListener {
             override fun onSwitchBoxClicked(code: Int, state: Boolean) {
-                // 8. При изменении видимости в настройках, создаём новый список Р изменённых элементов.
                 if (!vm.modifyedRatesState.contains(vm.todaysResponseBodyOrdered.getCurrency(code)!!))
                     vm.modifyedRatesState.add(
                         vm.todaysResponseBodyOrdered.getCurrency(code)!!.copy()
@@ -149,8 +144,6 @@ class SettingsFragment : Fragment() {
                 itemTouchHelper.startDrag(viewHolder)
             }
         }
-
-        // 7. Во фрагменте настроек назначаем адаптеру список Х.
         settingsAdapter =
             SettingsAdapter(vm.todaysResponseBodyOrdered, onSwitchBoxListener, onStartDragListener)
         binding.recyclerView.apply {

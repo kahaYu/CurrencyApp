@@ -17,7 +17,7 @@ abstract class BaseProgressBar @JvmOverloads constructor(
     abstract fun start()
     abstract fun stop()
 
-    fun dp2px(dp: Int): Int{
-        return dp*context.resources.displayMetrics.density.toInt()
+    fun dp2px(dp: Int): Int {
+        return dp * context.resources.displayMetrics.density.toInt()
     }
 }

@@ -1,13 +1,10 @@
 package com.raywenderlich.currencyapp.ui
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import android.widget.TextView
-import androidx.core.view.children
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
@@ -58,13 +55,7 @@ class CurrencyFragment : Fragment() {
 
         setupScrollView()
         setupRecyclerView()
-
-        obnovitView = LayoutInflater.from(context)
-            .inflate(R.layout.obnovit_view, binding.root as ViewGroup, false) as LinearLayout
-        bindingObnovit = ObnovitViewBinding.bind(obnovitView)
-        vm.startAnimation(bindingObnovit.icArrowDown)
-
-        logChildCount()
+        setupObnovitView()
 
         vm.currencies.observe(viewLifecycleOwner, Observer { response ->
             when (response) {
@@ -78,47 +69,44 @@ class CurrencyFragment : Fragment() {
                                 mTarget = null
                                 removeView(binding.scrollView.getChildAt(1))
                                 addView(recyclerView)
-                                if (!vm.isNavigatedFromSettingsFragment) vm.smoothAppearance(recyclerView, 1F)
+                                if (!vm.isNavigatedFromSettingsFragment) vm.smoothAppearance(
+                                    recyclerView,
+                                    1F
+                                )
                             }
                         }
                         null -> {
                             binding.scrollView.addView(recyclerView)
-                            if (!vm.isNavigatedFromSettingsFragment) vm.smoothAppearance(recyclerView, 1F)
+                            if (!vm.isNavigatedFromSettingsFragment) vm.smoothAppearance(
+                                recyclerView,
+                                1F
+                            )
                         }
                     }
-                    logChildCount()
                     hideProgressBar()
                     response.data?.let { currenciesResponse ->
                         currencyAdapter.differ.submitList(currenciesResponse)
-
-                        //updateScrollView()
                     }
                 }
                 is Resource.Error -> {
                     binding.btSettings.visibility = View.GONE
                     when (binding.scrollView.getChildAt(1)) {
                         is LinearLayout -> {
-
                         }
                         is RecyclerView -> {
-                            //binding.scrollView.apply {
-                            //    mTarget = null
-                            //    removeView(binding.scrollView.getChildAt(1))
-                            //    addView(bindingObnovit.root)
-                            //    vm.smoothAppearance(bindingObnovit.root, 0.15F)
-                            //}
                         }
                         null -> {
                             binding.scrollView.addView(bindingObnovit.root)
-                            if (!vm.isNavigatedFromSettingsFragment) vm.smoothAppearance(bindingObnovit.root, 0.15F)
+                            if (!vm.isNavigatedFromSettingsFragment) vm.smoothAppearance(
+                                bindingObnovit.root,
+                                0.15F
+                            )
                         }
                     }
-                    logChildCount()
                     hideProgressBar()
                     response.message?.let { message ->
                         showSafeToast(view, message)
                     }
-
                 }
                 is Resource.Loading -> {
                     showProgressBar()
@@ -126,10 +114,6 @@ class CurrencyFragment : Fragment() {
             }
             vm.isNavigatedFromSettingsFragment = false
             binding.scrollView.setRefreshing(false)
-            //binding.scrollView.ensureTarget()
-            logChildCount()
-            //tvObnovit.invalidate()
-            //recyclerView.invalidate()
         })
     }
 
@@ -155,17 +139,12 @@ class CurrencyFragment : Fragment() {
         binding.progressBar.visibility = View.VISIBLE
     }
 
-    /*fun refresh() {
-        vm.getCurrencies()
-    }*/
-
     private fun showSafeToast(
         view: View,
         text: String
     ) { // Prevent appearance of multiply toasts at once
         if (Calendar.getInstance().timeInMillis >= vm.toastShowTime + 4000L) {
             val snackbar = Snackbar.make(view, "Ошибка: $text", Snackbar.LENGTH_LONG)
-            //snackbar.view.background = resources.getDrawable(R.drawable.snackbar_background)
             snackbar.show()
             vm.toastShowTime = Calendar.getInstance().timeInMillis
         }
@@ -178,15 +157,7 @@ class CurrencyFragment : Fragment() {
         (recyclerView as RecyclerView).apply {
             adapter = currencyAdapter
             layoutManager = LinearLayoutManager(activity)
-            //addOnScrollListener(this@BreakingNewsFragment.scrollListener)
             setHasFixedSize(true) // Accelerate work of rv
-
-            //binding.recyclerView.apply {
-            //    adapter = currencyAdapter
-            //    layoutManager = LinearLayoutManager(activity)
-            //    //addOnScrollListener(this@BreakingNewsFragment.scrollListener)
-            //    setHasFixedSize(true) // Accelerate work of rv
-            //}
         }
     }
 
@@ -194,19 +165,16 @@ class CurrencyFragment : Fragment() {
         binding.progressBar.start() // Start main progress bar
         binding.scrollView.apply {
             setRefreshListener {
-                //handler.postDelayed({ this.setRefreshing(false) }, 2000L)
                 vm.isRefreshing = true
                 vm.getCurrencies()
             }
         }
     }
 
-    fun logChildCount () {
-        Log.e("Child", "Childs: ${binding.scrollView.childCount}")
-        val childs = mutableListOf<String>()
-        for (child in binding.scrollView.children) {
-            childs.add(child.javaClass.toString())
-        }
-        Log.e("Child", "They are: ${childs}")
+    private fun setupObnovitView() {
+        obnovitView = LayoutInflater.from(context)
+            .inflate(R.layout.obnovit_view, binding.root as ViewGroup, false) as LinearLayout
+        bindingObnovit = ObnovitViewBinding.bind(obnovitView)
+        vm.startArrowAnimation(bindingObnovit.icArrowDown)
     }
 }

@@ -17,12 +17,12 @@ class CurrencyAdapter : RecyclerView.Adapter<CurrencyAdapter.CurrencyViewHolder>
         override fun areItemsTheSame(oldItem: Rate, newItem: Rate): Boolean {
             return oldItem.iso == newItem.iso
         }
+
         override fun areContentsTheSame(oldItem: Rate, newItem: Rate): Boolean {
             return oldItem == newItem
         }
     }
 
-    //var responseList: List<Rate>? = null
     val differ = AsyncListDiffer(this, differCallback)
 
     class CurrencyViewHolder(itemView: View, val binding: CurrencyItemViewBinding) :
@@ -30,8 +30,7 @@ class CurrencyAdapter : RecyclerView.Adapter<CurrencyAdapter.CurrencyViewHolder>
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CurrencyViewHolder {
         val itemView =
-            LayoutInflater.from(parent.context).
-            inflate(R.layout.currency_item_view, parent, false)
+            LayoutInflater.from(parent.context).inflate(R.layout.currency_item_view, parent, false)
         val binding = CurrencyItemViewBinding.bind(itemView)
         return CurrencyViewHolder(itemView, binding)
     }

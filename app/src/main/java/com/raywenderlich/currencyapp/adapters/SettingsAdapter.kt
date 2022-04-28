@@ -14,7 +14,6 @@ import com.raywenderlich.currencyapp.model.Rate
 class SettingsAdapter(
     var ratesList: MutableList<Rate> = mutableListOf(),
     private val _onSwitchBoxListener: OnSwitchBoxListener,
-    //val onStartDragListener: OnStartDragListener
     val startDragListener: OnStartDragListener
 ) : RecyclerView.Adapter<SettingsAdapter.SettingsViewHolder>() {
 
@@ -43,10 +42,8 @@ class SettingsAdapter(
                     )
                 }
                 ivBurger.setOnLongClickListener { _ ->
-                    //itemView.elevation = 20F
                     startDragListener.requestDrag(this@SettingsViewHolder)
                     false
-
                 }
             }
         }
